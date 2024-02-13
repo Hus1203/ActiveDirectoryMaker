@@ -26,7 +26,7 @@ namespace UserMaking
     {
 
         List<UserList> userlist;
-        Form1 form;
+        
 
         public string oug;
         string group;
@@ -46,52 +46,10 @@ namespace UserMaking
             userlist = new List<UserList>();
         }
 
-        //private void ReloadDataGridView()
-        //{
-        //    dataGridView1.DataSource = null;
-        //    dataGridView1.DataSource = userlist;
-        //    //.Refresh();
-        //}
-        //private void ShowException()
-        //{
-        //    MessageBox.Show(this, "Невозможно загрузить содержимое этого файла.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        //}  /// Вывод ошибки
-        //private void ReadCSV(string Name)
-        //{
-        //    using (var reader = new StreamReader(Name, Encoding.GetEncoding("windows-1251")))
-        //    using (var file = new CsvReader(reader, CultureInfo.InvariantCulture))
-        //    {
-        //        try
-        //        {
-        //            userlist = file.GetRecords<UserList>().ToList();
-        //        }
-        //        catch
-        //        {
-        //            ShowException();
-        //        }
-        //        finally
-        //        {
-        //            ReloadDataGridView();
-        //        }
-        //    }
-
-        //} /// Чтение файла
+        
         private void loadToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-            //openFileDialog.Filter = "CSV files (*.csv)|*.csv";
-
-            //if (openFileDialog.ShowDialog() == DialogResult.OK)
-            //{
-            //    Name = openFileDialog.FileName;
-
-            //    if (Name.Contains(".csv"))
-            //        ReadCSV(Name);
-
-            //    else
-            //        MessageBox.Show(this, "Допустимые расширения:\n.csv", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
             
 
             ReadCSV readCSV = new ReadCSV();
