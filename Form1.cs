@@ -45,20 +45,11 @@ namespace UserMaking
             InitializeComponent();
             userlist = new List<UserList>();
         }
-
-        
-        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e) // Загрузка файла
         {
-
-            
-
-            ReadCSV readCSV = new ReadCSV();
-            
-            readCSV.LoadCSV();
-            //ReloadDataGridView() ;
-
-
-        } /// Загрузка файла
+            ReadCSV readCSV = new ReadCSV(); 
+            readCSV.LoadCSV();                  
+        }
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dataGridView1.DataSource != null) 
@@ -76,7 +67,7 @@ namespace UserMaking
                 return;
             }
 
-        } /// Сохранение файла
+        } // Сохранение файла
         public bool OuExists(string ouName)
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
