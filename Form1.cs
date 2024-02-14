@@ -93,13 +93,13 @@ namespace UserMaking
             }
         }
 
-        public bool UserOuExists(string fullName, string gr)
+        public bool UserOuExists(string login, string gr)
         {
             using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
             {
                 foreach (DirectoryEntry child in group.Children)
                 {
-                    if (child.Name == "OU=" + fullName)
+                    if (child.Name == "OU=" + login)
                     {
                         return true;
                     }
@@ -136,35 +136,19 @@ namespace UserMaking
             }
         }
 
-        public void CreateUserOu(string fullName, string gr)
+        public void CreateUserOu(string login, string gr)
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
             {
                 using (DirectoryEntry parentOu = root.Children.Find("OU=" + gr))
                 {
-                    using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + fullName, "OrganizationalUnit"))
+                    using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + login, "OrganizationalUnit"))
                     {
                         newOu.CommitChanges();
                     }
                 }
             }
         }
-
-        //public bool UserOuExists(string fullName, string oug)
-        //{
-            
-        //        using (DirectoryEntry entry = new DirectoryEntry("LDAP://mydomain.com/OU=" + fullName + ",OU=" + oug + ",DC=mydomain,DC=com"))
-        //        {
-        //            foreach (DirectoryEntry child in entry.Children)
-        //            {
-        //                if (child.Name == "OU=" + fullName)
-        //                {
-        //                    return true;
-        //                }
-        //            }
-        //        }
-        //}
-
         public void CreateUser()
         {
 
@@ -183,18 +167,13 @@ namespace UserMaking
                 login = $"{sn}{init}"; // WIN-2000 Login (Surname + Initials)
                 normLogin = $"{login}{domain}"; // Standard login
 
-                //if (!UserOuExists(fullName, gr))
-                //{
-                //    // Создание OU для пользователя
-                //    CreateUserOu(fullName, gr);
-                //}
 
-                if (!UserOuExists(fullName, gr))
+                if (!UserOuExists(login, gr))
                 {
-                    CreateUserOu(fullName, gr);
+                    CreateUserOu(login, gr);
                 }
 
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",OU=" + fullName + ",DC=mydomain,DC=com"))
+                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
                 {
                     UserPrincipal newUser = new UserPrincipal(context)
                     {
@@ -207,7 +186,7 @@ namespace UserMaking
                         GivenName = gname,
                         DisplayName = fullName,
                     };
-
+                    
                     newUser.SetPassword("aaaAAA111");
                     newUser.Save();
 
@@ -217,7 +196,7 @@ namespace UserMaking
                     existingGroup.Save();
                 }
             }
-            MessageBox.Show("Группы и пользователи успешно созданы!");
+            MessageBox.Show("пользователи созданы!");
         }
         private void Add_button_Click(object sender, EventArgs e)
         {
@@ -230,7 +209,7 @@ namespace UserMaking
             {
                 CreateGroups();
                 CreateUser();
-                MessageBox.Show("Выполненно!");
+                MessageBox.Show("Группы и пользователи успешно созданы!");
             }
         }
         private void Clear_button_Click(object sender, EventArgs e)
@@ -300,9 +279,9 @@ namespace UserMaking
 
         }
 
-        /// <summary>
+      
         /// Блок удаления директорий
-        /// </summary>
+       
         public void DeleteAllGroups()
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
