@@ -92,6 +92,21 @@ namespace UserMaking
                 }
             }
         }
+
+        public bool UserOuExists(string fullName, string gr)
+        {
+            using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
+            {
+                foreach (DirectoryEntry child in group.Children)
+                {
+                    if (child.Name == "OU=" + fullName)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         public void CreateGroups()
         {
             var groups = new HashSet<string>();
@@ -121,11 +136,11 @@ namespace UserMaking
             }
         }
 
-        public void CreateUserOu(string fullName, string oug)
+        public void CreateUserOu(string fullName, string gr)
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
             {
-                using (DirectoryEntry parentOu = root.Children.Find("OU=" + oug))
+                using (DirectoryEntry parentOu = root.Children.Find("OU=" + gr))
                 {
                     using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + fullName, "OrganizationalUnit"))
                     {
@@ -134,7 +149,22 @@ namespace UserMaking
                 }
             }
         }
-        
+
+        //public bool UserOuExists(string fullName, string oug)
+        //{
+            
+        //        using (DirectoryEntry entry = new DirectoryEntry("LDAP://mydomain.com/OU=" + fullName + ",OU=" + oug + ",DC=mydomain,DC=com"))
+        //        {
+        //            foreach (DirectoryEntry child in entry.Children)
+        //            {
+        //                if (child.Name == "OU=" + fullName)
+        //                {
+        //                    return true;
+        //                }
+        //            }
+        //        }
+        //}
+
         public void CreateUser()
         {
 
@@ -153,10 +183,18 @@ namespace UserMaking
                 login = $"{sn}{init}"; // WIN-2000 Login (Surname + Initials)
                 normLogin = $"{login}{domain}"; // Standard login
 
-                //CreateUserOu(fullName, gr); ///
+                //if (!UserOuExists(fullName, gr))
+                //{
+                //    // Создание OU для пользователя
+                //    CreateUserOu(fullName, gr);
+                //}
 
+                if (!UserOuExists(fullName, gr))
+                {
+                    CreateUserOu(fullName, gr);
+                }
 
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com","OU=" + gr + ",DC=mydomain,DC=com"))
+                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",OU=" + fullName + ",DC=mydomain,DC=com"))
                 {
                     UserPrincipal newUser = new UserPrincipal(context)
                     {
@@ -262,9 +300,9 @@ namespace UserMaking
 
         }
 
-
-       
-
+        /// <summary>
+        /// Блок удаления директорий
+        /// </summary>
         public void DeleteAllGroups()
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
