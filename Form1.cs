@@ -26,7 +26,7 @@ namespace UserMaking
     {
 
         List<UserList> userlist;
-        
+
 
         public string oug;
         string group;
@@ -47,13 +47,13 @@ namespace UserMaking
         }
         private void loadToolStripMenuItem_Click(object sender, EventArgs e) // Загрузка файла
         {
-            ReadCSV readCSV = new ReadCSV(); 
-            readCSV.LoadCSV();                  
+            ReadCSV readCSV = new ReadCSV();
+            readCSV.LoadCSV();
         }
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.DataSource != null) 
-            { 
+            if (dataGridView1.DataSource != null)
+            {
                 using (var writer = new StreamWriter("D:\\Users.csv", false, Encoding.GetEncoding("windows-1251")))
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
@@ -108,18 +108,33 @@ namespace UserMaking
 
                     using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
                     {
-                        
-                            GroupPrincipal newGroup = new GroupPrincipal(context)
-                            {
-                                Name = gr,
-                                Description = "Описание группы",
-                            };
-                            newGroup.Save();
+
+                        GroupPrincipal newGroup = new GroupPrincipal(context)
+                        {
+                            Name = gr,
+                            Description = "Описание группы",
+                        };
+                        newGroup.Save();
 
                     }
                 }
             }
         }
+
+        public void CreateUserOu(string fullName, string oug)
+        {
+            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+            {
+                using (DirectoryEntry parentOu = root.Children.Find("OU=" + oug))
+                {
+                    using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + fullName, "OrganizationalUnit"))
+                    {
+                        newOu.CommitChanges();
+                    }
+                }
+            }
+        }
+        
         public void CreateUser()
         {
 
@@ -138,16 +153,10 @@ namespace UserMaking
                 login = $"{sn}{init}"; // WIN-2000 Login (Surname + Initials)
                 normLogin = $"{login}{domain}"; // Standard login
 
-                //using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-                //{
-                //    using (DirectoryEntry newOu = root.Children.Add("OU=" + fullName, "OrganizationalUnit"))
-                //    {
-                //        newOu.CommitChanges();
-                //    }
-                //}
+                //CreateUserOu(fullName, gr); ///
 
 
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com","OU=" + gr + ",DC=mydomain,DC=com"))
                 {
                     UserPrincipal newUser = new UserPrincipal(context)
                     {
@@ -164,21 +173,8 @@ namespace UserMaking
                     newUser.SetPassword("aaaAAA111");
                     newUser.Save();
 
-                   
-
-
-                    //string userDirectory = Path.Combine ($"mydomain.com,OU={gr},DC=mydomain,DC=com", fullName);
-                    //Directory.CreateDirectory(userDirectory);
-
-                    //DirectoryInfo dirInfo = new DirectoryInfo(userDirectory);
-                    //DirectorySecurity dirSecurity = dirInfo.GetAccessControl();
-                    //FileSystemAccessRule accessRule = new FileSystemAccessRule(fullName, FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow);
-                    //dirSecurity.AddAccessRule(accessRule);
-                    //dirInfo.SetAccessControl(dirSecurity);
-
                     GroupPrincipal existingGroup = GroupPrincipal.FindByIdentity(context, IdentityType.Name, gr);
 
-                 
                     existingGroup.Members.Add(newUser);
                     existingGroup.Save();
                 }
@@ -264,6 +260,55 @@ namespace UserMaking
 
 
 
+        }
+
+
+       
+
+        public void DeleteAllGroups()
+        {
+            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+            {
+                DeleteChildEntries(root);
+            }
+        }
+
+        private void DeleteChildEntries(DirectoryEntry parent)
+        {
+            foreach (DirectoryEntry child in parent.Children)
+            {
+                DeleteChildEntries(child);
+
+                try
+                {
+                    if (DirectoryEntry.Exists(child.Path))
+                    {
+                        child.DeleteTree();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Ошибка при удалении объекта: " + ex.Message);
+                }
+            }
+
+            try
+            {
+                if (DirectoryEntry.Exists(parent.Path))
+                {
+                    parent.DeleteTree();
+                    parent.CommitChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка при удалении объекта: " + ex.Message);
+            }
+        }
+
+        private void DeleteGroup_button_Click(object sender, EventArgs e)
+        {
+            DeleteAllGroups();
         }
     }
 }
