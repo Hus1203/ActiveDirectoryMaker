@@ -173,7 +173,7 @@ namespace UserMaking
                     CreateUserOu(login, gr);
                 }
 
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + login + ",OU=" + gr + ",DC=mydomain,DC=com"))
                 {
                     UserPrincipal newUser = new UserPrincipal(context)
                     {
@@ -190,10 +190,24 @@ namespace UserMaking
                     newUser.SetPassword("aaaAAA111");
                     newUser.Save();
 
-                    GroupPrincipal existingGroup = GroupPrincipal.FindByIdentity(context, IdentityType.Name, gr);
 
-                    existingGroup.Members.Add(newUser);
-                    existingGroup.Save();
+                    using (PrincipalContext groupContext = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+                    {
+                        GroupPrincipal group = GroupPrincipal.FindByIdentity(groupContext, IdentityType.Name, gr);
+                        if (group != null)
+                        {
+                            group.Members.Add(newUser);
+                            group.Save();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Группа не найдена!");
+                        }
+                    }
+                    //GroupPrincipal existinggroup = GroupPrincipal.FindByIdentity(context, IdentityType.Name, gr);
+
+                    //existinggroup.Members.Add(newUser);
+                    //existinggroup.Save();
                 }
             }
             MessageBox.Show("пользователи созданы!");
