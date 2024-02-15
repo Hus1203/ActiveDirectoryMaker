@@ -42,20 +42,21 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.ReadPermissions = new System.Windows.Forms.CheckBox();
+            this.DeleteSubFoldersNFolders = new System.Windows.Forms.CheckBox();
+            this.WriteExtendAtributes = new System.Windows.Forms.CheckBox();
+            this.WriteAtributes = new System.Windows.Forms.CheckBox();
+            this.CreateFolders = new System.Windows.Forms.CheckBox();
+            this.ReadExtendAtributes = new System.Windows.Forms.CheckBox();
+            this.ReadAtributes = new System.Windows.Forms.CheckBox();
+            this.Execute = new System.Windows.Forms.CheckBox();
             this.Delete = new System.Windows.Forms.CheckBox();
             this.CreateFiles = new System.Windows.Forms.CheckBox();
             this.ReadData = new System.Windows.Forms.CheckBox();
             this.FullControl = new System.Windows.Forms.CheckBox();
             this.DeleteGroup_button = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
-            this.Execute = new System.Windows.Forms.CheckBox();
-            this.ReadAtributes = new System.Windows.Forms.CheckBox();
-            this.ReadExtendAtributes = new System.Windows.Forms.CheckBox();
-            this.CreateFolders = new System.Windows.Forms.CheckBox();
-            this.WriteAtributes = new System.Windows.Forms.CheckBox();
-            this.WriteExtendAtributes = new System.Windows.Forms.CheckBox();
-            this.DeleteSubFoldersNFolders = new System.Windows.Forms.CheckBox();
-            this.ReadPermissions = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -80,7 +81,7 @@
             this.mainToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1153, 29);
+            this.menuStrip1.Size = new System.Drawing.Size(1153, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -90,7 +91,7 @@
             this.loadToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.mainToolStripMenuItem.Name = "mainToolStripMenuItem";
-            this.mainToolStripMenuItem.Size = new System.Drawing.Size(56, 25);
+            this.mainToolStripMenuItem.Size = new System.Drawing.Size(56, 24);
             this.mainToolStripMenuItem.Text = "Main";
             // 
             // loadToolStripMenuItem
@@ -131,7 +132,7 @@
             // 
             this.Add_GroupRule_button.Location = new System.Drawing.Point(396, 53);
             this.Add_GroupRule_button.Name = "Add_GroupRule_button";
-            this.Add_GroupRule_button.Size = new System.Drawing.Size(84, 24);
+            this.Add_GroupRule_button.Size = new System.Drawing.Size(94, 24);
             this.Add_GroupRule_button.TabIndex = 4;
             this.Add_GroupRule_button.Text = "Добавить";
             this.Add_GroupRule_button.UseVisualStyleBackColor = true;
@@ -155,7 +156,7 @@
             this.Add_PersonRule_button.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.Add_PersonRule_button.Location = new System.Drawing.Point(396, 20);
             this.Add_PersonRule_button.Name = "Add_PersonRule_button";
-            this.Add_PersonRule_button.Size = new System.Drawing.Size(86, 27);
+            this.Add_PersonRule_button.Size = new System.Drawing.Size(94, 27);
             this.Add_PersonRule_button.TabIndex = 6;
             this.Add_PersonRule_button.Text = "Добавить";
             this.Add_PersonRule_button.UseVisualStyleBackColor = false;
@@ -190,6 +191,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.checkedListBox1);
             this.panel1.Controls.Add(this.ReadPermissions);
             this.panel1.Controls.Add(this.DeleteSubFoldersNFolders);
             this.panel1.Controls.Add(this.WriteExtendAtributes);
@@ -211,6 +213,95 @@
             this.panel1.Size = new System.Drawing.Size(507, 433);
             this.panel1.TabIndex = 10;
             // 
+            // checkedListBox1
+            // 
+            this.checkedListBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.checkedListBox1.Location = new System.Drawing.Point(321, 198);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(169, 155);
+            this.checkedListBox1.TabIndex = 20;
+            // 
+            // ReadPermissions
+            // 
+            this.ReadPermissions.AutoSize = true;
+            this.ReadPermissions.Location = new System.Drawing.Point(268, 161);
+            this.ReadPermissions.Name = "ReadPermissions";
+            this.ReadPermissions.Size = new System.Drawing.Size(177, 20);
+            this.ReadPermissions.TabIndex = 19;
+            this.ReadPermissions.Text = "Разрешение на чтение";
+            this.ReadPermissions.UseVisualStyleBackColor = true;
+            // 
+            // DeleteSubFoldersNFolders
+            // 
+            this.DeleteSubFoldersNFolders.AutoSize = true;
+            this.DeleteSubFoldersNFolders.Location = new System.Drawing.Point(268, 124);
+            this.DeleteSubFoldersNFolders.Name = "DeleteSubFoldersNFolders";
+            this.DeleteSubFoldersNFolders.Size = new System.Drawing.Size(222, 20);
+            this.DeleteSubFoldersNFolders.TabIndex = 18;
+            this.DeleteSubFoldersNFolders.Text = "Удаление подпапок и файлов";
+            this.DeleteSubFoldersNFolders.UseVisualStyleBackColor = true;
+            // 
+            // WriteExtendAtributes
+            // 
+            this.WriteExtendAtributes.AutoSize = true;
+            this.WriteExtendAtributes.Location = new System.Drawing.Point(268, 89);
+            this.WriteExtendAtributes.Name = "WriteExtendAtributes";
+            this.WriteExtendAtributes.Size = new System.Drawing.Size(236, 20);
+            this.WriteExtendAtributes.TabIndex = 17;
+            this.WriteExtendAtributes.Text = "Запись расширенных атрибутов";
+            this.WriteExtendAtributes.UseVisualStyleBackColor = true;
+            // 
+            // WriteAtributes
+            // 
+            this.WriteAtributes.AutoSize = true;
+            this.WriteAtributes.Location = new System.Drawing.Point(27, 393);
+            this.WriteAtributes.Name = "WriteAtributes";
+            this.WriteAtributes.Size = new System.Drawing.Size(146, 20);
+            this.WriteAtributes.TabIndex = 16;
+            this.WriteAtributes.Text = "Запись атрибутов";
+            this.WriteAtributes.UseVisualStyleBackColor = true;
+            // 
+            // CreateFolders
+            // 
+            this.CreateFolders.AutoSize = true;
+            this.CreateFolders.Location = new System.Drawing.Point(27, 353);
+            this.CreateFolders.Name = "CreateFolders";
+            this.CreateFolders.Size = new System.Drawing.Size(133, 20);
+            this.CreateFolders.TabIndex = 15;
+            this.CreateFolders.Text = "Создание папок";
+            this.CreateFolders.UseVisualStyleBackColor = true;
+            // 
+            // ReadExtendAtributes
+            // 
+            this.ReadExtendAtributes.AutoSize = true;
+            this.ReadExtendAtributes.Location = new System.Drawing.Point(27, 312);
+            this.ReadExtendAtributes.Name = "ReadExtendAtributes";
+            this.ReadExtendAtributes.Size = new System.Drawing.Size(237, 20);
+            this.ReadExtendAtributes.TabIndex = 14;
+            this.ReadExtendAtributes.Text = "Чтение расширенных атрибутов";
+            this.ReadExtendAtributes.UseVisualStyleBackColor = true;
+            // 
+            // ReadAtributes
+            // 
+            this.ReadAtributes.AutoSize = true;
+            this.ReadAtributes.Location = new System.Drawing.Point(27, 274);
+            this.ReadAtributes.Name = "ReadAtributes";
+            this.ReadAtributes.Size = new System.Drawing.Size(147, 20);
+            this.ReadAtributes.TabIndex = 13;
+            this.ReadAtributes.Text = "Чтение атрибутов";
+            this.ReadAtributes.UseVisualStyleBackColor = true;
+            // 
+            // Execute
+            // 
+            this.Execute.AutoSize = true;
+            this.Execute.Location = new System.Drawing.Point(27, 236);
+            this.Execute.Name = "Execute";
+            this.Execute.Size = new System.Drawing.Size(153, 20);
+            this.Execute.TabIndex = 12;
+            this.Execute.Tag = "Execute";
+            this.Execute.Text = "Исполнение файла";
+            this.Execute.UseVisualStyleBackColor = true;
+            // 
             // Delete
             // 
             this.Delete.AutoSize = true;
@@ -218,6 +309,7 @@
             this.Delete.Name = "Delete";
             this.Delete.Size = new System.Drawing.Size(91, 20);
             this.Delete.TabIndex = 11;
+            this.Delete.Tag = "Delete";
             this.Delete.Text = "Удаление";
             this.Delete.UseVisualStyleBackColor = true;
             // 
@@ -228,6 +320,7 @@
             this.CreateFiles.Name = "CreateFiles";
             this.CreateFiles.Size = new System.Drawing.Size(145, 20);
             this.CreateFiles.TabIndex = 10;
+            this.CreateFiles.Tag = "CreateFiles";
             this.CreateFiles.Text = "Создание файлов";
             this.CreateFiles.UseVisualStyleBackColor = true;
             // 
@@ -238,6 +331,7 @@
             this.ReadData.Name = "ReadData";
             this.ReadData.Size = new System.Drawing.Size(74, 20);
             this.ReadData.TabIndex = 9;
+            this.ReadData.Tag = "ReadData";
             this.ReadData.Text = "Чтение";
             this.ReadData.UseVisualStyleBackColor = true;
             // 
@@ -248,6 +342,7 @@
             this.FullControl.Name = "FullControl";
             this.FullControl.Size = new System.Drawing.Size(126, 20);
             this.FullControl.TabIndex = 8;
+            this.FullControl.Tag = "FullControl";
             this.FullControl.Text = "Полный доступ";
             this.FullControl.UseVisualStyleBackColor = true;
             // 
@@ -269,86 +364,6 @@
             this.label5.Size = new System.Drawing.Size(112, 16);
             this.label5.TabIndex = 12;
             this.label5.Text = "Удалить группы";
-            // 
-            // Execute
-            // 
-            this.Execute.AutoSize = true;
-            this.Execute.Location = new System.Drawing.Point(27, 236);
-            this.Execute.Name = "Execute";
-            this.Execute.Size = new System.Drawing.Size(153, 20);
-            this.Execute.TabIndex = 12;
-            this.Execute.Text = "Исполнение файла";
-            this.Execute.UseVisualStyleBackColor = true;
-            // 
-            // ReadAtributes
-            // 
-            this.ReadAtributes.AutoSize = true;
-            this.ReadAtributes.Location = new System.Drawing.Point(27, 274);
-            this.ReadAtributes.Name = "ReadAtributes";
-            this.ReadAtributes.Size = new System.Drawing.Size(147, 20);
-            this.ReadAtributes.TabIndex = 13;
-            this.ReadAtributes.Text = "Чтение атрибутов";
-            this.ReadAtributes.UseVisualStyleBackColor = true;
-            // 
-            // ReadExtendAtributes
-            // 
-            this.ReadExtendAtributes.AutoSize = true;
-            this.ReadExtendAtributes.Location = new System.Drawing.Point(27, 312);
-            this.ReadExtendAtributes.Name = "ReadExtendAtributes";
-            this.ReadExtendAtributes.Size = new System.Drawing.Size(237, 20);
-            this.ReadExtendAtributes.TabIndex = 14;
-            this.ReadExtendAtributes.Text = "Чтение расширенных атрибутов";
-            this.ReadExtendAtributes.UseVisualStyleBackColor = true;
-            // 
-            // CreateFolders
-            // 
-            this.CreateFolders.AutoSize = true;
-            this.CreateFolders.Location = new System.Drawing.Point(27, 353);
-            this.CreateFolders.Name = "CreateFolders";
-            this.CreateFolders.Size = new System.Drawing.Size(133, 20);
-            this.CreateFolders.TabIndex = 15;
-            this.CreateFolders.Text = "Создание папок";
-            this.CreateFolders.UseVisualStyleBackColor = true;
-            // 
-            // WriteAtributes
-            // 
-            this.WriteAtributes.AutoSize = true;
-            this.WriteAtributes.Location = new System.Drawing.Point(27, 393);
-            this.WriteAtributes.Name = "WriteAtributes";
-            this.WriteAtributes.Size = new System.Drawing.Size(146, 20);
-            this.WriteAtributes.TabIndex = 16;
-            this.WriteAtributes.Text = "Запись атрибутов";
-            this.WriteAtributes.UseVisualStyleBackColor = true;
-            // 
-            // WriteExtendAtributes
-            // 
-            this.WriteExtendAtributes.AutoSize = true;
-            this.WriteExtendAtributes.Location = new System.Drawing.Point(268, 89);
-            this.WriteExtendAtributes.Name = "WriteExtendAtributes";
-            this.WriteExtendAtributes.Size = new System.Drawing.Size(236, 20);
-            this.WriteExtendAtributes.TabIndex = 17;
-            this.WriteExtendAtributes.Text = "Запись расширенных атрибутов";
-            this.WriteExtendAtributes.UseVisualStyleBackColor = true;
-            // 
-            // DeleteSubFoldersNFolders
-            // 
-            this.DeleteSubFoldersNFolders.AutoSize = true;
-            this.DeleteSubFoldersNFolders.Location = new System.Drawing.Point(268, 124);
-            this.DeleteSubFoldersNFolders.Name = "DeleteSubFoldersNFolders";
-            this.DeleteSubFoldersNFolders.Size = new System.Drawing.Size(222, 20);
-            this.DeleteSubFoldersNFolders.TabIndex = 18;
-            this.DeleteSubFoldersNFolders.Text = "Удаление подпапок и файлов";
-            this.DeleteSubFoldersNFolders.UseVisualStyleBackColor = true;
-            // 
-            // ReadPermissions
-            // 
-            this.ReadPermissions.AutoSize = true;
-            this.ReadPermissions.Location = new System.Drawing.Point(268, 161);
-            this.ReadPermissions.Name = "ReadPermissions";
-            this.ReadPermissions.Size = new System.Drawing.Size(177, 20);
-            this.ReadPermissions.TabIndex = 19;
-            this.ReadPermissions.Text = "Разрешение на чтение";
-            this.ReadPermissions.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -406,6 +421,7 @@
         private System.Windows.Forms.CheckBox ReadExtendAtributes;
         private System.Windows.Forms.CheckBox ReadAtributes;
         private System.Windows.Forms.CheckBox Execute;
+        private System.Windows.Forms.CheckedListBox checkedListBox1;
     }
 }
 

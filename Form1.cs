@@ -18,6 +18,7 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Security.Principal;
 using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 
 namespace UserMaking
@@ -26,7 +27,6 @@ namespace UserMaking
     {
 
         List<UserList> userlist;
-
 
         public string oug;
         string group;
@@ -39,35 +39,62 @@ namespace UserMaking
         string login;
         string normLogin;
 
-
+        
         public Form1()
         {
             InitializeComponent();
             userlist = new List<UserList>();
         }
+
+        public void LoadCSVIntoListBox()
+        {
+            if (dataGridView1.DataSource != null)
+            {
+                checkedListBox1.Items.Clear();
+                List<string> uniqueGroups = new List<string>();
+
+                foreach (DataGridViewRow row in dataGridView1.Rows)
+                {
+                    string gr = row.Cells["Группа"].Value.ToString();
+
+                    if (!uniqueGroups.Contains(gr))
+                    {
+                        uniqueGroups.Add(gr);
+                        checkedListBox1.Items.Add(gr);
+                    }
+                }
+            }
+        }
+
         private void loadToolStripMenuItem_Click(object sender, EventArgs e) // Загрузка файла
         {
             ReadCSV readCSV = new ReadCSV();
             readCSV.LoadCSV();
+            LoadCSVIntoListBox();
         }
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.DataSource != null)
-            {
-                using (var writer = new StreamWriter("D:\\Users.csv", false, Encoding.GetEncoding("windows-1251")))
-                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                {
-                    csv.WriteRecords(userlist);
-                    MessageBox.Show("Сохраненно");
-                }
-            }
-            else
-            {
-                MessageBox.Show("Вы пытаетесь сохарнить пустой файл!");
-                return;
-            }
+
+            ReadCSV readCSV = new ReadCSV();
+            readCSV.SaveCSV();
+            //if (dataGridView1.DataSource != null)
+            //{
+            //    using (var writer = new StreamWriter("D:\\Users.csv", false, Encoding.GetEncoding("windows-1251")))
+            //    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            //    {
+            //        csv.WriteRecords(userlist);
+            //        MessageBox.Show("Сохраненно");
+            //    }
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Вы пытаетесь сохарнить пустой файл!");
+            //    return;
+            //}
 
         } // Сохранение файла
+
+
         public bool OuExists(string ouName)
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
@@ -93,20 +120,6 @@ namespace UserMaking
             }
         }
 
-        public bool UserOuExists(string login, string gr)
-        {
-            using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
-            {
-                foreach (DirectoryEntry child in group.Children)
-                {
-                    if (child.Name == "OU=" + login)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
         public void CreateGroups()
         {
             var groups = new HashSet<string>();
@@ -136,6 +149,20 @@ namespace UserMaking
             }
         }
 
+        public bool UserOuExists(string login, string gr)
+        {
+            using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
+            {
+                foreach (DirectoryEntry child in group.Children)
+                {
+                    if (child.Name == "OU=" + login)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         public void CreateUserOu(string login, string gr)
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
@@ -151,7 +178,6 @@ namespace UserMaking
         }
         public void CreateUser()
         {
-
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
                 
@@ -204,14 +230,14 @@ namespace UserMaking
                             MessageBox.Show("Группа не найдена!");
                         }
                     }
-                    //GroupPrincipal existinggroup = GroupPrincipal.FindByIdentity(context, IdentityType.Name, gr);
-
-                    //existinggroup.Members.Add(newUser);
-                    //existinggroup.Save();
                 }
             }
             MessageBox.Show("пользователи созданы!");
         }
+
+
+        /// Кнопки
+        
         private void Add_button_Click(object sender, EventArgs e)
         {
             if(dataGridView1.DataSource == null)
@@ -237,65 +263,47 @@ namespace UserMaking
         }
         private void Add_GroupRule_button_Click(object sender, EventArgs e)
         {
-            if (FullControl.Checked)
-            {
-                //logic
-            }
+            FullControl.Tag = "FullControl";
+            ReadData.Tag = "ReadData";
+            CreateFiles.Tag = "CreateFiles";
+            Delete.Tag = "Delete";
 
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                oug = row.Cells["Группа"].Value.ToString();
-                string path = "LDAP://SERVER1,dc=mydomain, dc= com";
-                string gpath = Path.Combine(path, oug);
-
-                Directory.CreateDirectory(gpath);
-
-
-            }
-
-
-
-
-
-
-            //foreach (DataGridViewRow row in dataGridView1.Rows)
+            //List<CheckBox> selectedPermissions = new List<CheckBox>();
+            //foreach (Control control in checkedListBox1.Controls)
             //{
-            //    oug = row.Cells["Группа"].Value.ToString();
+            //    if (control is CheckBox checkBox && checkBox.Checked)
+            //    {
+            //        selectedPermissions.Add(checkBox);
+            //    }
             //}
 
-                //string groupPath = "LDAP://dc=mydomain,dc=com";
-                //string groupName = "/SG_090103_2022";
-                //string gPath = Path.Combine(groupPath, groupName);
-
-                //Directory.CreateDirectory(gPath);
-
-                //userlist = new List<UserList>();
-
-                //foreach(DataGridViewRow row in dataGridView1.Rows)
-                //{
-                //    sn = row.Cells["Фамилия"].Value.ToString();
-                //    gname = $"{row.Cells["Имя"].Value} {row.Cells["Отчество"].Value}";
-                //    fullName = $"{sn} {gname}";
-
-                //    string uPath = Path.Combine(gPath, fullName);
-
-                //    Directory.CreateDirectory(uPath);
-
-                //    DirectoryInfo dInfo = new DirectoryInfo(uPath);
-                //    DirectorySecurity dSecurity = dInfo.GetAccessControl();
-
-                //    dSecurity.AddAccessRule(new FileSystemAccessRule(new NTAccount("mydomain.com\\\\" + fullName), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-
-                //    dInfo.SetAccessControl(dSecurity);
+            //List<string> selectedGroups = new List<string>();
+            //foreach (object item in checkedListBox1.SelectedItems)
+            //{
+            //    selectedGroups.Add(item.ToString());
             //}
 
+            //foreach (string selectedGroup in selectedGroups)
+            //{
+            //    string groupPath = "LDAP://SERVER1,dc=mydomain,dc=com";
 
+            //    using (DirectoryEntry group = new DirectoryEntry(groupPath))
+            //    {
+            //        foreach (CheckBox permissionCheckbox in selectedPermissions)
+            //        {
+            //            string permission = permissionCheckbox.Text;
+
+
+            //        }
+            //        group.CommitChanges();
+            //    }
+            //}
 
         }
 
-      
+
         /// Блок удаления директорий
-       
+
         public void DeleteAllGroups()
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
@@ -341,5 +349,7 @@ namespace UserMaking
         {
             DeleteAllGroups();
         }
+
+       
     }
 }

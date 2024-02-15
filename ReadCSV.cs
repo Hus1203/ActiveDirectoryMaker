@@ -71,7 +71,25 @@ namespace UserMaking
             }
         }
 
-        
+        public void SaveCSV()
+        {
+            Form1 form = (Form1)Application.OpenForms["Form1"];
+
+            if (form.dataGridView1.DataSource != null)
+            {
+                using (var writer = new StreamWriter("D:\\Users.csv", false, Encoding.GetEncoding("windows-1251")))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(userlist);
+                    MessageBox.Show("Сохраненно");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Вы пытаетесь сохарнить пустой файл!");
+                return;
+            }
+        }
 
     }
 }
