@@ -14,6 +14,7 @@ using System.Security.AccessControl;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
+using System.Management;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Security.Principal;
@@ -395,39 +396,46 @@ namespace UserMaking
         public void CreateShares()
         {
             string baseDirectory = "C:\\\\public";
-
-            foreach (DataGridViewRow row in dataGridView1.Rows)
+            if (dataGridView1 == null)
             {
-                string groupName = row.Cells["Группа"].Value.ToString();
-                string userLogin = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
-
-                string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
-                string userDirectoryPath = Path.Combine(groupDirectoryPath, userLogin);
-
-                if (!Directory.Exists(groupDirectoryPath))
-                {
-                    Directory.CreateDirectory(groupDirectoryPath);
-                }
-                else
-                {
-                    Console.WriteLine($"Директория {groupDirectoryPath} уже существует.");
-                    // Вывод предупреждения или выполнение других действий
-                }
-
-                if (!Directory.Exists(userDirectoryPath))
-                {
-                    Directory.CreateDirectory(userDirectoryPath);
-                }
-                else
-                {
-                    Console.WriteLine($"Директория {userDirectoryPath} уже существует.");
-                    // Вывод предупреждения или выполнение других действий
-                }
-
-                //Directory.CreateDirectory(groupDirectoryPath);
-               // Directory.CreateDirectory(userDirectoryPath);
+                MessageBox.Show("Сначала загрузите данные");
+                return;
             }
-            MessageBox.Show("well doneово");
+            else
+            {
+                foreach (DataGridViewRow row in dataGridView1.Rows)
+                {
+                    string groupName = row.Cells["Группа"].Value.ToString();
+                    string userLogin = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
+
+                    string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
+                    string userDirectoryPath = Path.Combine(groupDirectoryPath, userLogin);
+
+                    if (!Directory.Exists(groupDirectoryPath))
+                    {
+                        Directory.CreateDirectory(groupDirectoryPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Директория {groupDirectoryPath} уже существует.");
+                        // Вывод предупреждения или выполнение других действий
+                    }
+
+                    if (!Directory.Exists(userDirectoryPath))
+                    {
+                        Directory.CreateDirectory(userDirectoryPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Директория {userDirectoryPath} уже существует.");
+                        // Вывод предупреждения или выполнение других действий
+                    }
+
+                    //Directory.CreateDirectory(groupDirectoryPath);
+                    // Directory.CreateDirectory(userDirectoryPath);
+                }
+                MessageBox.Show("well doneово");
+            }
         }
 
         public void GrantFolderAccess()
@@ -436,35 +444,32 @@ namespace UserMaking
 
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
+                
                 string groupName = row.Cells["Группа"].Value.ToString();
-                string userLogin = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
+                string login = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
 
                 string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
-                string userDirectoryPath = Path.Combine(groupDirectoryPath, userLogin);
+                string userDirectoryPath = Path.Combine(groupDirectoryPath, login);
 
                 if (Directory.Exists(userDirectoryPath))
                 {
                     using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
                     {
-                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
+                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
                         if (user != null)
                         {
-                            //DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
-                            //directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                            //Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-
                             DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
                             SecurityIdentifier sid = user.Sid; // Получаем Sid пользователя
                             NTAccount ntAccount = (NTAccount)sid.Translate(typeof(NTAccount)); // Получаем NTAccount из Sid
 
                             directorySecurity.AddAccessRule(new FileSystemAccessRule(ntAccount, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                             Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-
-                            Console.WriteLine($"User {userLogin} has been granted access to network path {userDirectoryPath}");
+                            ShareFolder(userDirectoryPath, login);
+                            // MessageBox.Show($"Пользователю {login} предоставлен доступ к папке {userDirectoryPath}");
                         }
                         else
                         {
-                            MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
+                            MessageBox.Show($"Пользователь {login} не найден в Active Directory.");
                         }
                     }
                 }
@@ -474,10 +479,51 @@ namespace UserMaking
                 }
             }
         }
+
+        public void ShareFolder(string folderPath, string shareName)
+        {
+            // Создайте объект ManagementClass, представляющий класс Win32_Share
+            ManagementClass managementClass = new ManagementClass("Win32_Share");
+
+            // Получите все уже существующие общие ресурсы
+            ManagementObjectCollection shares = managementClass.GetInstances();
+
+            foreach (ManagementObject share in shares)
+            {
+                if (string.Equals((string)share["Name"], shareName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Общий ресурс с таким именем уже существует, попробуем удалить его
+                    share.Delete();
+                    break;
+                }
+            }
+
+            // Создайте входной параметры для метода Create
+            ManagementBaseObject inParams = managementClass.GetMethodParameters("Create");
+
+            // Задайте входные параметры
+            inParams["Path"] = folderPath;
+            inParams["Name"] = shareName;
+            inParams["Type"] = 0x0; // Disk Drive
+
+            // Вызовите метод Create и получите возвращаемый результат
+            ManagementBaseObject outParams = managementClass.InvokeMethod("Create", inParams, null);
+
+            if ((uint)(outParams.Properties["ReturnValue"].Value) != 0)
+            {
+                throw new Exception("Ошибка при попытке поделиться папкой.");
+            }
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             CreateShares();
             GrantFolderAccess();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }
