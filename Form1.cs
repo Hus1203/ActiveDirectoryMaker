@@ -21,6 +21,8 @@ using System.Security.Principal;
 using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Drawing.Drawing2D;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using PowerShellToolsPro.Packager;
 
 namespace UserMaking
 {
@@ -164,6 +166,7 @@ namespace UserMaking
                     }
                 }
             }
+            MessageBox.Show("Такой пользователь существует");
             return false;
         }
         public void CreateUserOu(string login, string gr)
@@ -262,90 +265,145 @@ namespace UserMaking
 
         private void Add_PersonRule_button_Click(object sender, EventArgs e)
         {
-            //foreach (var item in checkedListBox1.CheckedItems)
-            //{
-            //    MessageBox.Show(item.ToString());
-            //}
-
-            //UserAddFo f2 = new UserAddFo();
-            
-
-
 
         }
         private void Add_GroupRule_button_Click(object sender, EventArgs e)
         {
-            CheckBox[] checkboxes = { FullControl, ReadData, Execute };
-            FullControl.Tag = "FullControl";
-            ReadData.Tag = "ReadData";
-            CreateFiles.Tag = "CreateFiles";
-            Delete.Tag = "Delete";
+            //CheckBox[] checkboxes = { FullControl, Read, Execute };
 
-            ApplyAccessRulesBasedOnCheckboxes(checkboxes);
-
+            // ApplyAccessRulesBasedOnCheckboxes();
+            GrantReadAccessToExistingFolders();
         }
 
 
-      
-        public void ApplyAccessRulesBasedOnCheckboxes(CheckBox[] checkboxes)
+
+        public void ApplyAccessRulesBasedOnCheckboxes()
         {
-            /// мне надо сделать путь до пользователя пробегается по всем пользователя в этой группе 
-            foreach (var item in checkedListBox1.CheckedItems)
-            {
-                string gr = item.ToString();
+            string path = "C:\\public\\90103_2022";
 
-                string gpath = "mydomain.com\\\\OU=" + gr + ",DC=mydomain,DC=com";
-
-                MessageBox.Show(gpath);
-
-                FileSecurity fileSecurity = File.GetAccessControl(gr);
-
-                foreach (CheckBox checkbox in checkboxes)
+            
+                using (DirectoryEntry entry = new DirectoryEntry(path))
                 {
-                    if (checkbox.Checked)
-                    {
-                        FileSystemRights rights;
+                    DirectorySearcher searcher = new DirectorySearcher(entry);
+                    searcher.Filter = ("sAMAccountName=АртемьевКС");
 
-                        if (checkbox.Name == "ReadData")
-                        {
-                            rights = FileSystemRights.Read;
-                        }
-                        else if (checkbox.Name == "WriteData")
-                        {
-                            rights = FileSystemRights.WriteData;
-                        }
-                        else if (checkbox.Name == "Execute")
-                        {
-                            rights = FileSystemRights.ExecuteFile;
-                        }
-                        else
-                        {
-                            // Добавьте дополнительные условия для других прав доступа при необходимости
-                            continue;
-                        }
-                        FileSystemAccessRule rule = new FileSystemAccessRule(gpath, rights, AccessControlType.Allow);
-                        fileSecurity.AddAccessRule(rule);
+                    SearchResult result = searcher.FindOne();
+
+                    if (result != null)
+                    {
+                        DirectoryEntry userEntry = result.GetDirectoryEntry();
+
+                        FileSystemAccessRule rule = new FileSystemAccessRule(userEntry.Path, FileSystemRights.Read, AccessControlType.Allow);
+                        DirectorySecurity security = new DirectorySecurity();
+                        security.SetSecurityDescriptorBinaryForm(entry.ObjectSecurity.GetSecurityDescriptorBinaryForm());
+                        security.AddAccessRule(rule);
+                        entry.CommitChanges();
+
+                        Console.WriteLine("Права на чтение успешно добавлены для пользователя: ");
                     }
                     else
                     {
-                        MessageBox.Show($"Директория {gr} не найдена.");
+                        Console.WriteLine("Пользователь с именем не найден.");
                     }
-                    File.SetAccessControl(gr, fileSecurity);
-
-                    MessageBox.Show("Правила доступа к файлу установлены.");
-
-
                 }
-
-            } 
-
-        }
             
-        
-        
+            
+        }
+
+
+        public void GrantReadAccessToExistingFolders()
+        {
+            string baseDirectory = "C:\\public";
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                string groupName = row.Cells["Группа"].Value.ToString();
+                string login = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
+
+                string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
+                string userDirectoryPath = Path.Combine(groupDirectoryPath, login);
+
+                if (Directory.Exists(userDirectoryPath))
+                {
+                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+                    {
+                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
+                        if (user != null)
+                        {
+                            DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
+                            SecurityIdentifier sid = user.Sid; // Получаем Sid пользователя
+                            NTAccount ntAccount = (NTAccount)sid.Translate(typeof(NTAccount)); // Получаем NTAccount из Sid
+
+                            // Очищаем текущие разрешения
+                            directorySecurity.SetAccessRuleProtection(true, false);
+                            directorySecurity.ResetAccessRule(new FileSystemAccessRule(ntAccount, FileSystemRights.FullControl, AccessControlType.Allow));
+
+                            // Добавляем право на чтение
+                            FileSystemAccessRule readAccessRule = new FileSystemAccessRule(ntAccount, FileSystemRights.Read, AccessControlType.Allow);
+                            directorySecurity.AddAccessRule(readAccessRule);
+                            Directory.SetAccessControl(userDirectoryPath, directorySecurity);
+                            ShareFolder(userDirectoryPath, login);
+                            MessageBox.Show($"Пользователю {login} предоставлен доступ на чтение к папке {userDirectoryPath}");
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Пользователь {login} не найден в Active Directory.");
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Директория {userDirectoryPath} не найдена.");
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+        //нужно добовлять разрешения в папки пользователя, то есть, чтобы в безопасности папки пользователя выбирался непосредственно сам пользователь(изначально там выбранны все разрешения), мы их убераем и для начала поставим только чтение
+
+        //public void ApplyAccessRulesBasedOnCheckboxes()
+        //{
+        //    var selectedGroups = checkedListBox1.CheckedItems.Cast<string>().ToList(); // Группы
+
+        //    //var selectedRights = checkboxes.Where(cb => cb.Checked).Select(cb => cb.Name).ToList(); // Разрешения
+
+        //    foreach (var gr in selectedGroups)
+        //    {
+        //        // Формируем путь к группе в Active Directory
+        //        string groupPath = $"LDAP://mydomain.com/OU={gr},DC=mydomain,DC=com";
+
+        //        // Получаем доступ к группе в Active Directory
+        //        using (DirectoryEntry groupEntry = new DirectoryEntry(groupPath))
+        //        {
+        //            // Получаем всех пользователей в текущей группе
+        //            foreach (DirectoryEntry user in groupEntry.Children)
+        //            {
+        //                var login = user.Properties["sAMAccountName"].Value.ToString();
+
+        //                MessageBox.Show(login.ToString());
+
+        //                    ActiveDirectorySecurity userSecurity = user.ObjectSecurity;
+
+        //                    //foreach (var right in selectedRights)
+        //                    //{
+        //                        ActiveDirectoryAccessRule rule = new ActiveDirectoryAccessRule(new NTAccount(login), ActiveDirectoryRights.ReadProperty, AccessControlType.Allow);
+        //                        userSecurity.AddAccessRule(rule);
+        //                    //}
+
+        //                    user.CommitChanges(); // Сохраняем изменения
+
+        //            }
+        //        }
+        //    }
+        //}
 
         /// Блок удаления директорий
-
         public void DeleteAllGroups()
         {
             using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
@@ -391,7 +449,6 @@ namespace UserMaking
         {
             DeleteAllGroups();
         }
-
 
         public void CreateShares()
         {
@@ -521,9 +578,5 @@ namespace UserMaking
             GrantFolderAccess();
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            
-        }
     }
 }
