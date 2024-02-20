@@ -49,7 +49,7 @@
             this.ReadExtendAtributes = new System.Windows.Forms.CheckBox();
             this.Write = new System.Windows.Forms.CheckBox();
             this.Read = new System.Windows.Forms.CheckBox();
-            this.Delete = new System.Windows.Forms.CheckBox();
+            this.ListDirectory = new System.Windows.Forms.CheckBox();
             this.ReadAndExecute = new System.Windows.Forms.CheckBox();
             this.Modify = new System.Windows.Forms.CheckBox();
             this.FullControl = new System.Windows.Forms.CheckBox();
@@ -180,7 +180,7 @@
             this.panel1.Controls.Add(this.ReadExtendAtributes);
             this.panel1.Controls.Add(this.Write);
             this.panel1.Controls.Add(this.Read);
-            this.panel1.Controls.Add(this.Delete);
+            this.panel1.Controls.Add(this.ListDirectory);
             this.panel1.Controls.Add(this.ReadAndExecute);
             this.panel1.Controls.Add(this.Modify);
             this.panel1.Controls.Add(this.FullControl);
@@ -285,16 +285,16 @@
             this.Read.Text = "Чтение";
             this.Read.UseVisualStyleBackColor = true;
             // 
-            // Delete
+            // ListDirectory
             // 
-            this.Delete.AutoSize = true;
-            this.Delete.Location = new System.Drawing.Point(26, 175);
-            this.Delete.Name = "Delete";
-            this.Delete.Size = new System.Drawing.Size(205, 20);
-            this.Delete.TabIndex = 11;
-            this.Delete.Tag = "Delete";
-            this.Delete.Text = "Список содержимого папки";
-            this.Delete.UseVisualStyleBackColor = true;
+            this.ListDirectory.AutoSize = true;
+            this.ListDirectory.Location = new System.Drawing.Point(26, 175);
+            this.ListDirectory.Name = "ListDirectory";
+            this.ListDirectory.Size = new System.Drawing.Size(205, 20);
+            this.ListDirectory.TabIndex = 11;
+            this.ListDirectory.Tag = "Delete";
+            this.ListDirectory.Text = "Список содержимого папки";
+            this.ListDirectory.UseVisualStyleBackColor = true;
             // 
             // ReadAndExecute
             // 
@@ -441,7 +441,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.CheckBox Delete;
+        private System.Windows.Forms.CheckBox ListDirectory;
         private System.Windows.Forms.CheckBox ReadAndExecute;
         private System.Windows.Forms.CheckBox Modify;
         private System.Windows.Forms.CheckBox FullControl;
