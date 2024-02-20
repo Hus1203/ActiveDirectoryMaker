@@ -300,22 +300,20 @@ namespace UserMaking
 
                             foreach (FileSystemAccessRule rule in rules)
                             {
-                                if (rule.IdentityReference.Value == user.Sid.Value && rule.FileSystemRights != FileSystemRights.Write)
-                                {
-                                    directorySecurity.RemoveAccessRule(rule);
-                                }
+                                //if (rule.IdentityReference.Value == user.Sid.Value && rule.FileSystemRights != FileSystemRights.Write)
+                                //{
+                                //    directorySecurity.RemoveAccessRule(rule);
+                                //}
                                 directorySecurity.RemoveAccessRule(rule);
                             }
 
-                            //FileSystemAccessRule writeAccessRule = new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly, AccessControlType.Allow);
-                            //FileSystemAccessRule writeAccessRule = new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.InheritOnly, AccessControlType.Allow);
-                            //directorySecurity.AddAccessRule(writeAccessRule);
+                            
                             directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
                             directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-
+                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                             Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-                            ShareFolder(userDirectoryPath, userLogin);
-                            // MessageBox.Show($"Пользователю {userLogin} предоставлен доступ на запись к папке {userDirectoryPath}");
+                            //ShareFolder(userDirectoryPath, userLogin);
                         }
                         else
                         {
@@ -325,100 +323,9 @@ namespace UserMaking
                 }
             }
 
-            MessageBox.Show("Права на запись успешно установлены для всех пользовательских папок.");
+            MessageBox.Show("Права успешно установлены для всех пользовательских папок.");
         }
-        //public void GrantWriteAccessToUserFolders()
-        //{
-        //    string baseDirectory = "C:\\public";
-
-        //    foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
-        //    {
-        //        string groupName = new DirectoryInfo(groupDirectoryPath).Name;
-
-        //        foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
-        //        {
-        //            string userLogin = new DirectoryInfo(userDirectoryPath).Name;
-
-        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
-        //            {
-        //                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
-        //                if (user != null)
-        //                {
-        //                    DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
-        //                    FileSystemAccessRule writeAccessRule = new FileSystemAccessRule(user.Sid, FileSystemRights.ExecuteFile, AccessControlType.Allow);
-
-        //                    // Проверяем каждое правило доступа и модифицируем только для указанного пользователя
-        //                    AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
-        //                    foreach (FileSystemAccessRule rule in rules)
-        //                    {
-        //                        if (rule.IdentityReference.Value == user.Sid.Value && rule.FileSystemRights != FileSystemRights.ExecuteFile)
-        //                        {
-        //                            directorySecurity.ModifyAccessRule(AccessControlModification.Remove, rule, out bool modified);
-        //                        }
-        //                    }
-
-        //                    // Добавляем право на запись только для пользователя
-        //                    directorySecurity.AddAccessRule(writeAccessRule);
-
-        //                    Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-        //                    ShareFolder(userDirectoryPath, userLogin);
-        //                    // MessageBox.Show($"Пользователю {userLogin} предоставлен доступ на запись к папке {userDirectoryPath}");
-        //                }
-        //                else
-        //                {
-        //                    MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    MessageBox.Show("Права на запись успешно установлены для всех пользовательских папок.");
-        //}
-
-
-        //public void GrantReadAccessToUserFolders()
-        //{
-        //    string baseDirectory = "C:\\public";
-
-        //    foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
-        //    {
-        //        string groupName = new DirectoryInfo(groupDirectoryPath).Name;
-
-        //        foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
-        //        {
-        //            string userLogin = new DirectoryInfo(userDirectoryPath).Name;
-
-        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
-        //            {
-        //                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
-        //                if (user != null)
-        //                {
-        //                    DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
-        //                    SecurityIdentifier sid = user.Sid;
-        //                    NTAccount ntAccount = (NTAccount)sid.Translate(typeof(NTAccount));
-
-        //                    // Добавляем право на чтение, не удаляя текущие разрешения
-        //                    FileSystemAccessRule readAccessRule = new FileSystemAccessRule(ntAccount, FileSystemRights.Read, AccessControlType.Allow);
-        //                    directorySecurity.AddAccessRule(readAccessRule);
-
-        //                    Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-        //                    ShareFolder(userDirectoryPath, userLogin);
-        //                    // MessageBox.Show($"Пользователю {userLogin} предоставлен доступ на чтение к папке {userDirectoryPath}");
-        //                }
-        //                else
-        //                {
-        //                    MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    MessageBox.Show("Права на чтение успешно установлены для всех пользовательских папок.");
-        //}
-
-      
-
-       
+        
 
         /// Блок удаления директорий
         public void DeleteAllGroups()
