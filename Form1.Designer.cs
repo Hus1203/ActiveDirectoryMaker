@@ -59,6 +59,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -94,7 +95,7 @@
             this.loadToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.mainToolStripMenuItem.Name = "mainToolStripMenuItem";
-            this.mainToolStripMenuItem.Size = new System.Drawing.Size(56, 24);
+            this.mainToolStripMenuItem.Size = new System.Drawing.Size(56, 25);
             this.mainToolStripMenuItem.Text = "Main";
             // 
             // loadToolStripMenuItem
@@ -352,18 +353,18 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(781, 535);
+            this.button1.Location = new System.Drawing.Point(781, 537);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(111, 24);
             this.button1.TabIndex = 13;
-            this.button1.Text = "button1";
+            this.button1.Text = "Make smb";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(632, 543);
+            this.label6.Location = new System.Drawing.Point(631, 513);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(143, 16);
             this.label6.TabIndex = 14;
@@ -375,14 +376,25 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(111, 23);
             this.button2.TabIndex = 15;
-            this.button2.Text = "access";
+            this.button2.Text = "Make dir";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(632, 541);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(130, 16);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "Расширение папки";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1153, 588);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.button1);
@@ -441,6 +453,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label1;
     }
 }
 

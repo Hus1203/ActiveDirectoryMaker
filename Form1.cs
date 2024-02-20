@@ -272,136 +272,153 @@ namespace UserMaking
             //CheckBox[] checkboxes = { FullControl, Read, Execute };
 
             // ApplyAccessRulesBasedOnCheckboxes();
-            GrantReadAccessToExistingFolders();
+            GrantWriteAccessToUserFolders();
         }
 
 
-
-        public void ApplyAccessRulesBasedOnCheckboxes()
-        {
-            string path = "C:\\public\\90103_2022";
-
-            
-                using (DirectoryEntry entry = new DirectoryEntry(path))
-                {
-                    DirectorySearcher searcher = new DirectorySearcher(entry);
-                    searcher.Filter = ("sAMAccountName=АртемьевКС");
-
-                    SearchResult result = searcher.FindOne();
-
-                    if (result != null)
-                    {
-                        DirectoryEntry userEntry = result.GetDirectoryEntry();
-
-                        FileSystemAccessRule rule = new FileSystemAccessRule(userEntry.Path, FileSystemRights.Read, AccessControlType.Allow);
-                        DirectorySecurity security = new DirectorySecurity();
-                        security.SetSecurityDescriptorBinaryForm(entry.ObjectSecurity.GetSecurityDescriptorBinaryForm());
-                        security.AddAccessRule(rule);
-                        entry.CommitChanges();
-
-                        Console.WriteLine("Права на чтение успешно добавлены для пользователя: ");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Пользователь с именем не найден.");
-                    }
-                }
-            
-            
-        }
-
-
-        public void GrantReadAccessToExistingFolders()
+        public void GrantWriteAccessToUserFolders()
         {
             string baseDirectory = "C:\\public";
 
-            foreach (DataGridViewRow row in dataGridView1.Rows)
+            foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
             {
-                string groupName = row.Cells["Группа"].Value.ToString();
-                string login = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
+                string groupName = new DirectoryInfo(groupDirectoryPath).Name;
 
-                string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
-                string userDirectoryPath = Path.Combine(groupDirectoryPath, login);
-
-                if (Directory.Exists(userDirectoryPath))
+                foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
                 {
+                    string userLogin = new DirectoryInfo(userDirectoryPath).Name;
+
                     using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
                     {
-                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
+                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
                         if (user != null)
                         {
                             DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
-                            SecurityIdentifier sid = user.Sid; // Получаем Sid пользователя
-                            NTAccount ntAccount = (NTAccount)sid.Translate(typeof(NTAccount)); // Получаем NTAccount из Sid
 
-                            // Очищаем текущие разрешения
-                            directorySecurity.SetAccessRuleProtection(true, false);
-                            directorySecurity.ResetAccessRule(new FileSystemAccessRule(ntAccount, FileSystemRights.FullControl, AccessControlType.Allow));
+                            // Удаляем все существующие правила, кроме разрешения на запись
+                            AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
 
-                            // Добавляем право на чтение
-                            FileSystemAccessRule readAccessRule = new FileSystemAccessRule(ntAccount, FileSystemRights.Read, AccessControlType.Allow);
-                            directorySecurity.AddAccessRule(readAccessRule);
+                            foreach (FileSystemAccessRule rule in rules)
+                            {
+                                if (rule.IdentityReference.Value == user.Sid.Value && rule.FileSystemRights != FileSystemRights.Write)
+                                {
+                                    directorySecurity.RemoveAccessRule(rule);
+                                }
+                                directorySecurity.RemoveAccessRule(rule);
+                            }
+
+                            //FileSystemAccessRule writeAccessRule = new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly, AccessControlType.Allow);
+                            //FileSystemAccessRule writeAccessRule = new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.InheritOnly, AccessControlType.Allow);
+                            //directorySecurity.AddAccessRule(writeAccessRule);
+                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+
                             Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-                            ShareFolder(userDirectoryPath, login);
-                            MessageBox.Show($"Пользователю {login} предоставлен доступ на чтение к папке {userDirectoryPath}");
+                            ShareFolder(userDirectoryPath, userLogin);
+                            // MessageBox.Show($"Пользователю {userLogin} предоставлен доступ на запись к папке {userDirectoryPath}");
                         }
                         else
                         {
-                            MessageBox.Show($"Пользователь {login} не найден в Active Directory.");
+                            MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
                         }
                     }
                 }
-                else
-                {
-                    MessageBox.Show($"Директория {userDirectoryPath} не найдена.");
-                }
             }
+
+            MessageBox.Show("Права на запись успешно установлены для всех пользовательских папок.");
         }
-
-
-
-
-
-
-
-
-        //нужно добовлять разрешения в папки пользователя, то есть, чтобы в безопасности папки пользователя выбирался непосредственно сам пользователь(изначально там выбранны все разрешения), мы их убераем и для начала поставим только чтение
-
-        //public void ApplyAccessRulesBasedOnCheckboxes()
+        //public void GrantWriteAccessToUserFolders()
         //{
-        //    var selectedGroups = checkedListBox1.CheckedItems.Cast<string>().ToList(); // Группы
+        //    string baseDirectory = "C:\\public";
 
-        //    //var selectedRights = checkboxes.Where(cb => cb.Checked).Select(cb => cb.Name).ToList(); // Разрешения
-
-        //    foreach (var gr in selectedGroups)
+        //    foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
         //    {
-        //        // Формируем путь к группе в Active Directory
-        //        string groupPath = $"LDAP://mydomain.com/OU={gr},DC=mydomain,DC=com";
+        //        string groupName = new DirectoryInfo(groupDirectoryPath).Name;
 
-        //        // Получаем доступ к группе в Active Directory
-        //        using (DirectoryEntry groupEntry = new DirectoryEntry(groupPath))
+        //        foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
         //        {
-        //            // Получаем всех пользователей в текущей группе
-        //            foreach (DirectoryEntry user in groupEntry.Children)
+        //            string userLogin = new DirectoryInfo(userDirectoryPath).Name;
+
+        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
         //            {
-        //                var login = user.Properties["sAMAccountName"].Value.ToString();
+        //                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
+        //                if (user != null)
+        //                {
+        //                    DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
+        //                    FileSystemAccessRule writeAccessRule = new FileSystemAccessRule(user.Sid, FileSystemRights.ExecuteFile, AccessControlType.Allow);
 
-        //                MessageBox.Show(login.ToString());
+        //                    // Проверяем каждое правило доступа и модифицируем только для указанного пользователя
+        //                    AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
+        //                    foreach (FileSystemAccessRule rule in rules)
+        //                    {
+        //                        if (rule.IdentityReference.Value == user.Sid.Value && rule.FileSystemRights != FileSystemRights.ExecuteFile)
+        //                        {
+        //                            directorySecurity.ModifyAccessRule(AccessControlModification.Remove, rule, out bool modified);
+        //                        }
+        //                    }
 
-        //                    ActiveDirectorySecurity userSecurity = user.ObjectSecurity;
+        //                    // Добавляем право на запись только для пользователя
+        //                    directorySecurity.AddAccessRule(writeAccessRule);
 
-        //                    //foreach (var right in selectedRights)
-        //                    //{
-        //                        ActiveDirectoryAccessRule rule = new ActiveDirectoryAccessRule(new NTAccount(login), ActiveDirectoryRights.ReadProperty, AccessControlType.Allow);
-        //                        userSecurity.AddAccessRule(rule);
-        //                    //}
-
-        //                    user.CommitChanges(); // Сохраняем изменения
-
+        //                    Directory.SetAccessControl(userDirectoryPath, directorySecurity);
+        //                    ShareFolder(userDirectoryPath, userLogin);
+        //                    // MessageBox.Show($"Пользователю {userLogin} предоставлен доступ на запись к папке {userDirectoryPath}");
+        //                }
+        //                else
+        //                {
+        //                    MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
+        //                }
         //            }
         //        }
         //    }
+
+        //    MessageBox.Show("Права на запись успешно установлены для всех пользовательских папок.");
         //}
+
+
+        //public void GrantReadAccessToUserFolders()
+        //{
+        //    string baseDirectory = "C:\\public";
+
+        //    foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
+        //    {
+        //        string groupName = new DirectoryInfo(groupDirectoryPath).Name;
+
+        //        foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
+        //        {
+        //            string userLogin = new DirectoryInfo(userDirectoryPath).Name;
+
+        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+        //            {
+        //                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
+        //                if (user != null)
+        //                {
+        //                    DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
+        //                    SecurityIdentifier sid = user.Sid;
+        //                    NTAccount ntAccount = (NTAccount)sid.Translate(typeof(NTAccount));
+
+        //                    // Добавляем право на чтение, не удаляя текущие разрешения
+        //                    FileSystemAccessRule readAccessRule = new FileSystemAccessRule(ntAccount, FileSystemRights.Read, AccessControlType.Allow);
+        //                    directorySecurity.AddAccessRule(readAccessRule);
+
+        //                    Directory.SetAccessControl(userDirectoryPath, directorySecurity);
+        //                    ShareFolder(userDirectoryPath, userLogin);
+        //                    // MessageBox.Show($"Пользователю {userLogin} предоставлен доступ на чтение к папке {userDirectoryPath}");
+        //                }
+        //                else
+        //                {
+        //                    MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    MessageBox.Show("Права на чтение успешно установлены для всех пользовательских папок.");
+        //}
+
+      
+
+       
 
         /// Блок удаления директорий
         public void DeleteAllGroups()
@@ -495,6 +512,41 @@ namespace UserMaking
             }
         }
 
+        public void ShareFolder(string folderPath, string shareName)
+        {
+            // Создайте объект ManagementClass, представляющий класс Win32_Share
+            ManagementClass managementClass = new ManagementClass("Win32_Share");
+
+            // Получите все уже существующие общие ресурсы
+            ManagementObjectCollection shares = managementClass.GetInstances();
+
+            foreach (ManagementObject share in shares)
+            {
+                if (string.Equals((string)share["Name"], shareName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Общий ресурс с таким именем уже существует, попробуем удалить его
+                    share.Delete();
+                    break;
+                }
+            }
+
+            // Создайте входной параметры для метода Create
+            ManagementBaseObject inParams = managementClass.GetMethodParameters("Create");
+
+            // Задайте входные параметры
+            inParams["Path"] = folderPath;
+            inParams["Name"] = shareName;
+            inParams["Type"] = 0x0; // Disk Drive
+
+            // Вызовите метод Create и получите возвращаемый результат
+            ManagementBaseObject outParams = managementClass.InvokeMethod("Create", inParams, null);
+
+            //if ((uint)(outParams.Properties["ReturnValue"].Value) != 0)
+            //{
+            //    throw new Exception("Ошибка при попытке поделиться папкой.");
+            //}
+        }
+
         public void GrantFolderAccess()
         {
             string baseDirectory = "C:\\public";
@@ -537,46 +589,14 @@ namespace UserMaking
             }
         }
 
-        public void ShareFolder(string folderPath, string shareName)
-        {
-            // Создайте объект ManagementClass, представляющий класс Win32_Share
-            ManagementClass managementClass = new ManagementClass("Win32_Share");
-
-            // Получите все уже существующие общие ресурсы
-            ManagementObjectCollection shares = managementClass.GetInstances();
-
-            foreach (ManagementObject share in shares)
-            {
-                if (string.Equals((string)share["Name"], shareName, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Общий ресурс с таким именем уже существует, попробуем удалить его
-                    share.Delete();
-                    break;
-                }
-            }
-
-            // Создайте входной параметры для метода Create
-            ManagementBaseObject inParams = managementClass.GetMethodParameters("Create");
-
-            // Задайте входные параметры
-            inParams["Path"] = folderPath;
-            inParams["Name"] = shareName;
-            inParams["Type"] = 0x0; // Disk Drive
-
-            // Вызовите метод Create и получите возвращаемый результат
-            ManagementBaseObject outParams = managementClass.InvokeMethod("Create", inParams, null);
-
-            if ((uint)(outParams.Properties["ReturnValue"].Value) != 0)
-            {
-                throw new Exception("Ошибка при попытке поделиться папкой.");
-            }
-        }
-
         private void button1_Click(object sender, EventArgs e)
-        {
-            CreateShares();
+        {    
             GrantFolderAccess();
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            CreateShares();
+        }
     }
 }
