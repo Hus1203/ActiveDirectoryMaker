@@ -276,135 +276,162 @@ namespace UserMaking
         public void GrantWriteAccessToUserFolders(CheckBox[] checkboxes)
         {
             string baseDirectory = "C:\\public";
+            Dictionary<string, FileSystemRights> permissionMapping = new Dictionary<string, FileSystemRights>
+             {
+            { "Read", FileSystemRights.Read },
+            { "Write", FileSystemRights.Write },
+            { "Modify", FileSystemRights.Modify },
+            { "ReadAndExecute", FileSystemRights.ReadAndExecute },
+            { "FullControl", FileSystemRights.FullControl },
+            { "ListDirectory", FileSystemRights.ListDirectory }
+            };
 
-            foreach (var items in checkedListBox1.CheckedItems)
+            bool isGroupSelected = false;
+            bool isCheckboxSelected = false;
+
+            foreach (var groupItem in checkedListBox1.CheckedItems)
             {
-                string groupName = items.ToString();
+                isGroupSelected = true; // Устанавливаем флаг, что хотя бы одна группа была выбрана
+
+                string selectedGroup = groupItem.ToString();
 
                 foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
                 {
-                     groupName = new DirectoryInfo(groupDirectoryPath).Name;
+                    string groupName = new DirectoryInfo(groupDirectoryPath).Name;
 
-                    
-
-                    foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
+                    if (groupName == selectedGroup)
                     {
-                        string userLogin = new DirectoryInfo(userDirectoryPath).Name;
-
-                        using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+                        foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
                         {
-                            UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
-                            if (user != null)
+                            string userLogin = new DirectoryInfo(userDirectoryPath).Name;
+
+                            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
                             {
-                                DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
-
-                                // Удаляем все существующие правила, кроме разрешения на запись
-                                AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
-
-                                foreach (FileSystemAccessRule rule in rules)
+                                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
+                                if (user != null)
                                 {
-                                    directorySecurity.RemoveAccessRule(rule);
-                                }
-                                foreach (CheckBox checkbox in checkboxes) // Плохая реализация, но имеет место быть
-                                {
-                                    if (checkbox.Checked)
+                                    foreach (CheckBox checkbox in checkboxes)
                                     {
-                                        if (checkbox.Name == "Read")
+                                        if (checkbox.Checked)
                                         {
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                            if (permissionMapping.ContainsKey(checkbox.Name))
+                                            {
+                                                DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
+                                                FileSystemRights permission = permissionMapping[checkbox.Name];
+
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, permission, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, permission, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+
+                                                // Применяем изменения к папке и т.д.
+                                            }
                                         }
-                                        else if (checkbox.Name == "Write")
-                                        {
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                                        }
-                                        else if (checkbox.Name == "FullControl")
-                                        {
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                                        }
-                                        else if (checkbox.Name == "Modify")
-                                        {
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                                        }
-                                        else if (checkbox.Name == "ReadAndExecute")
-                                        {
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                                        }
-                                        else if (checkbox.Name == "ListDirectory")
-                                        {
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                            directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                                        }
-                                        Directory.SetAccessControl(userDirectoryPath, directorySecurity);
                                     }
                                 }
-                            }
-                            else
-                            {
-                                MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
                             }
                         }
                     }
                 }
             }
 
-            MessageBox.Show("Права успешно установлены для всех пользовательских папок.");
+            if (!isGroupSelected || !isCheckboxSelected)
+            {
+                MessageBox.Show("Пожалуйста, выберите хотя бы одну группу и один чекбокс для назначения прав доступа.");
+            }
+            else
+            {
+                MessageBox.Show("Права успешно установлены для выбранных групп пользовательских папок.");
+            }
         }
 
 
-        //public void GrantWriteAccessToUserFolders()
+
+        //public void GrantWriteAccessToUserFolders(CheckBox[] checkboxes)
         //{
         //    string baseDirectory = "C:\\public";
 
-        //    foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
+        //    foreach (var groupItem in checkedListBox1.CheckedItems)
         //    {
-        //        string groupName = new DirectoryInfo(groupDirectoryPath).Name;
+        //        string selectedGroup = groupItem.ToString();
 
-        //        foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
+
+
+        //        foreach (string groupDirectoryPath in Directory.GetDirectories(baseDirectory))
         //        {
-        //            string userLogin = new DirectoryInfo(userDirectoryPath).Name;
+        //            string groupName = new DirectoryInfo(groupDirectoryPath).Name;
 
-        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+        //            if (groupName == selectedGroup)
         //            {
-        //                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
-        //                if (user != null)
+        //                foreach (string userDirectoryPath in Directory.GetDirectories(groupDirectoryPath))
         //                {
-        //                    DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
+        //                    string userLogin = new DirectoryInfo(userDirectoryPath).Name;
 
-        //                    // Удаляем все существующие правила, кроме разрешения на запись
-        //                    AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
-
-        //                    foreach (FileSystemAccessRule rule in rules)
+        //                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
         //                    {
-        //                        //if (rule.IdentityReference.Value == user.Sid.Value && rule.FileSystemRights != FileSystemRights.Write)
-        //                        //{
-        //                        //    directorySecurity.RemoveAccessRule(rule);
-        //                        //}
-        //                        directorySecurity.RemoveAccessRule(rule);
+        //                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, userLogin);
+        //                        if (user != null)
+        //                        {
+        //                            DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
+
+        //                            // Удаляем все существующие правила, кроме разрешения на запись
+        //                            AuthorizationRuleCollection rules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
+
+        //                            foreach (FileSystemAccessRule rule in rules)
+        //                            {
+        //                                directorySecurity.RemoveAccessRule(rule);
+        //                            }
+        //                            foreach (CheckBox checkbox in checkboxes) // Плохая реализация, но имеет место быть
+        //                            {
+        //                                if (checkbox.Checked)
+        //                                {
+        //                                    if (checkbox.Name == "Read")
+        //                                    {
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                    }
+        //                                    else if (checkbox.Name == "Write")
+        //                                    {
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                    }
+        //                                    else if (checkbox.Name == "FullControl")
+        //                                    {
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                    }
+        //                                    else if (checkbox.Name == "Modify")
+        //                                    {
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                    }
+        //                                    else if (checkbox.Name == "ReadAndExecute")
+        //                                    {
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                    }
+        //                                    else if (checkbox.Name == "ListDirectory")
+        //                                    {
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                        directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+        //                                    }
+        //                                    Directory.SetAccessControl(userDirectoryPath, directorySecurity);
+        //                                }
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
+        //                        }
         //                    }
-
-
-        //                    directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-        //                    directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-        //                    directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-        //                    directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-        //                    Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-        //                    //ShareFolder(userDirectoryPath, userLogin);
-        //                }
-        //                else
-        //                {
-        //                    MessageBox.Show($"Пользователь {userLogin} не найден в Active Directory.");
         //                }
         //            }
         //        }
         //    }
 
         //    MessageBox.Show("Права успешно установлены для всех пользовательских папок.");
-        //}
+        //} // <--- успех
+
+
+
 
 
         /// Блок удаления директорий
