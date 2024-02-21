@@ -68,6 +68,7 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(12, 42);
             this.dataGridView1.Name = "dataGridView1";
@@ -85,7 +86,7 @@
             this.mainToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1153, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1155, 29);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -187,7 +188,7 @@
             this.panel1.Controls.Add(this.panel2);
             this.panel1.Location = new System.Drawing.Point(622, 42);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(507, 433);
+            this.panel1.Size = new System.Drawing.Size(516, 433);
             this.panel1.TabIndex = 10;
             // 
             // checkedListBox1
@@ -318,6 +319,7 @@
             this.Modify.Text = "Изменение";
             this.Modify.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Modify.UseVisualStyleBackColor = true;
+            this.Modify.CheckedChanged += new System.EventHandler(this.Modify_CheckedChanged);
             // 
             // FullControl
             // 
@@ -332,6 +334,7 @@
             // 
             // panel2
             // 
+            this.panel2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.panel2.Controls.Add(this.Add_GroupRule_button);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Location = new System.Drawing.Point(13, 9);
@@ -400,7 +403,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1153, 588);
+            this.ClientSize = new System.Drawing.Size(1155, 588);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label6);

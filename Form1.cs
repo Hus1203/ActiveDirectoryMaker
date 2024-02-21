@@ -49,6 +49,11 @@ namespace UserMaking
             userlist = new List<UserList>();
         }
 
+        public void ProcessDataInADModule()
+        {
+            ADModule adModule = new ADModule(dataGridView1);
+        }
+
         public void LoadCSVIntoListBox()
         {
             if (dataGridView1.DataSource != null)
@@ -98,146 +103,158 @@ namespace UserMaking
         } // Сохранение файла
 
 
-        public bool OuExists(string ouName)
-        {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-            {
-                foreach (DirectoryEntry child in root.Children)
-                {
-                    if (child.Name == "OU=" + ouName)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        public void CreateOu(string oug)
-        {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-            {
-                using (DirectoryEntry newOu = root.Children.Add("OU=" + oug, "OrganizationalUnit"))
-                {
-                    newOu.CommitChanges();
-                }
-            }
-        }
+        //public bool OuExists(string ouName)
+        //{
+        //    using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+        //    {
+        //        foreach (DirectoryEntry child in root.Children)
+        //        {
+        //            if (child.Name == "OU=" + ouName)
+        //            {
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
+        //public void CreateOu(string oug)
+        //{
+        //    using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+        //    {
+        //        using (DirectoryEntry newOu = root.Children.Add("OU=" + oug, "OrganizationalUnit"))
+        //        {
+        //            newOu.CommitChanges();
+        //        }
+        //    }
+        //}
 
-        public void CreateGroups()
-        {
-            var groups = new HashSet<string>();
+        //public void CreateGroups()
+        //{
+        //    var groups = new HashSet<string>();
 
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                string groupName = row.Cells["Группа"].Value.ToString();
-                gr = $"SG_{groupName}";
+        //    foreach (DataGridViewRow row in dataGridView1.Rows)
+        //    {
+        //        string groupName = row.Cells["Группа"].Value.ToString();
+        //        gr = $"SG_{groupName}";
 
-                //Создаем OU для группы, если он еще не существует
-                if (!OuExists(gr))
-                {
-                    CreateOu(gr);
+        //        //Создаем OU для группы, если он еще не существует
+        //        if (!OuExists(gr))
+        //        {
+        //            CreateOu(gr);
 
-                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
-                    {
+        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+        //            {
 
-                        GroupPrincipal newGroup = new GroupPrincipal(context)
-                        {
-                            Name = gr,
-                            Description = "Описание группы",
-                        };
-                        newGroup.Save();
+        //                GroupPrincipal newGroup = new GroupPrincipal(context)
+        //                {
+        //                    Name = gr,
+        //                    Description = "Описание группы",
+        //                };
+        //                newGroup.Save();
 
-                    }
-                }
-            }
-        }
+        //            }
+        //        }
+        //    }
+        //}
 
-        public bool UserOuExists(string login, string gr)
-        {
-            using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
-            {
-                foreach (DirectoryEntry child in group.Children)
-                {
-                    if (child.Name == "OU=" + login)
-                    {
-                        return true;
-                    }
-                }
-            }
-            MessageBox.Show("Такой пользователь существует");
-            return false;
-        }
-        public void CreateUserOu(string login, string gr)
-        {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-            {
-                using (DirectoryEntry parentOu = root.Children.Find("OU=" + gr))
-                {
-                    using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + login, "OrganizationalUnit"))
-                    {
-                        newOu.CommitChanges();
-                    }
-                }
-            }
-        }
-        public void CreateUser()
-        {
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
+        //public bool UserOuExists(string login, string gr)
+        //{
+        //    using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
+        //    {
+        //        foreach (DirectoryEntry child in group.Children)
+        //        {
+        //            if (child.Name == "OU=" + login)
+        //            {
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    //MessageBox.Show("Такой пользователь существует");
+        //    return false;
+        //}
+        //public void CreateUserOu(string login, string gr)
+        //{
+        //    using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+        //    {
+        //        using (DirectoryEntry parentOu = root.Children.Find("OU=" + gr))
+        //        {
+        //            using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + login, "OrganizationalUnit"))
+        //            {
+        //                newOu.CommitChanges();
+        //            }
+        //        }
+        //    }
+        //}
+
+        //private bool UserExists(string login)
+        //{
+        //    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com"))
+        //    {
+        //        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
+        //        return user != null;
+        //    }
+        //}
+        //public void CreateUser()
+        //{
+
+        //    foreach (DataGridViewRow row in dataGridView1.Rows)
+        //    {
                 
-                string groupName = row.Cells["Группа"].Value.ToString();
+        //        string groupName = row.Cells["Группа"].Value.ToString();
 
-                oug = row.Cells["Группа"].Value.ToString();
-                //group = $"OU={oug}"; //<-- сама группа
-                sn = row.Cells["Фамилия"].Value.ToString();
-                gname = $"{row.Cells["Имя"].Value} {row.Cells["Отчество"].Value}"; // Name + Patronymic
-                init = row.Cells["Инициалы"].Value.ToString();
-                fullName = $"{sn} {gname}";
-                gr = $"SG_{oug}"; // <-- по идее это паттерн названия группы 
-                login = $"{sn}{init}"; // WIN-2000 Login (Surname + Initials)
-                normLogin = $"{login}{domain}"; // Standard login
+        //        oug = row.Cells["Группа"].Value.ToString();
+        //        //group = $"OU={oug}"; //<-- сама группа
+        //        sn = row.Cells["Фамилия"].Value.ToString();
+        //        gname = $"{row.Cells["Имя"].Value} {row.Cells["Отчество"].Value}"; // Name + Patronymic
+        //        init = row.Cells["Инициалы"].Value.ToString();
+        //        fullName = $"{sn} {gname}";
+        //        gr = $"SG_{oug}"; // <-- по идее это паттерн названия группы 
+        //        login = $"{sn}{init}"; // WIN-2000 Login (Surname + Initials)
+        //        normLogin = $"{login}{domain}"; // Standard login
+
+        //        if (!UserExists(login))
+        //        {
+        //            if (!UserOuExists(login, gr))
+        //            {
+        //                CreateUserOu(login, gr);
+        //            }
+
+        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + login + ",OU=" + gr + ",DC=mydomain,DC=com"))
+        //            {
+        //                UserPrincipal newUser = new UserPrincipal(context)
+        //                {
+        //                    Name = fullName,
+        //                    SamAccountName = login,
+        //                    Surname = sn,
+        //                    Enabled = true,
+        //                    UserPrincipalName = normLogin,
+        //                    AccountExpirationDate = null,
+        //                    GivenName = gname,
+        //                    DisplayName = fullName,
+        //                };
+
+        //                newUser.SetPassword("aaaAAA111");
+        //                newUser.Save();
 
 
-                if (!UserOuExists(login, gr))
-                {
-                    CreateUserOu(login, gr);
-                }
-
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + login + ",OU=" + gr + ",DC=mydomain,DC=com"))
-                {
-                    UserPrincipal newUser = new UserPrincipal(context)
-                    {
-                        Name = fullName,
-                        SamAccountName = login,
-                        Surname = sn,
-                        Enabled = true,
-                        UserPrincipalName = normLogin,
-                        AccountExpirationDate = null,
-                        GivenName = gname,
-                        DisplayName = fullName,
-                    };
-                    
-                    newUser.SetPassword("aaaAAA111");
-                    newUser.Save();
-
-
-                    using (PrincipalContext groupContext = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
-                    {
-                        GroupPrincipal group = GroupPrincipal.FindByIdentity(groupContext, IdentityType.Name, gr);
-                        if (group != null)
-                        {
-                            group.Members.Add(newUser);
-                            group.Save();
-                        }
-                        else
-                        {
-                            MessageBox.Show("Группа не найдена!");
-                        }
-                    }
-                }
-            }
-            MessageBox.Show("пользователи созданы!");
-        }
+        //                using (PrincipalContext groupContext = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+        //                {
+        //                    GroupPrincipal group = GroupPrincipal.FindByIdentity(groupContext, IdentityType.Name, gr);
+        //                    if (group != null)
+        //                    {
+        //                        group.Members.Add(newUser);
+        //                        group.Save();
+        //                    }
+        //                    else
+        //                    {
+        //                        MessageBox.Show("Группа не найдена!");
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    MessageBox.Show("пользователи созданы!");
+        //}
 
 
         /// Кнопки
@@ -251,8 +268,9 @@ namespace UserMaking
             }
             else
             {
-                CreateGroups();
-                CreateUser();
+                ADModule admodule = new ADModule(dataGridView1);
+                admodule.CreateGroups();
+                admodule.CreateUser();
                 MessageBox.Show("Группы и пользователи успешно созданы!");
             }
         }
@@ -272,22 +290,34 @@ namespace UserMaking
             GrantWriteAccessToUserFolders(checkboxes);
         }
 
+        public Boolean CheckBoxe(CheckBox[] checkboxes)
+        {
+            var selectedGroupsCount = checkedListBox1.CheckedItems.Count;
+            var selectedCheckboxesCount = checkboxes.Count(cb => cb.Checked);
+
+
+            if (selectedGroupsCount == 0 || selectedCheckboxesCount == 0)
+            {
+                MessageBox.Show("Пожалуйста, выберите хотя бы одну группу и один чекбокс для назначения прав доступа.");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         
         public void GrantWriteAccessToUserFolders(CheckBox[] checkboxes)
         {
             string baseDirectory = "C:\\public";
 
-
-            var selectedGroupsCount = checkedListBox1.CheckedItems.Count;
-            var selectedCheckboxesCount = checkboxes.Count(cb => cb.Checked);
-
-            if (selectedGroupsCount == 0 || selectedCheckboxesCount == 0)
+            if(CheckBoxe(checkboxes)) // Проверка 
             {
-                MessageBox.Show("Пожалуйста, выберите хотя бы одну группу и один чекбокс для назначения прав доступа.");
                 return;
             }
 
-            foreach (var groupItem in checkedListBox1.CheckedItems)
+            foreach (var groupItem in checkedListBox1.CheckedItems) // достаем группы из листбокса
             {
                 string selectedGroup = groupItem.ToString();
 
@@ -315,43 +345,40 @@ namespace UserMaking
                                     {
                                         directorySecurity.RemoveAccessRule(rule);
                                     }
+
                                     foreach (CheckBox checkbox in checkboxes) // Плохая реализация, но имеет место быть
                                     {
                                         if (checkbox.Checked)
                                         {
                                             if (checkbox.Name == "Read")
                                             {
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Read, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                                             }
                                             else if (checkbox.Name == "Write")
                                             {
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Write, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                                             }
                                             else if (checkbox.Name == "FullControl")
                                             {
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                                             }
                                             else if (checkbox.Name == "Modify")
                                             {
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.Modify, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                                             }
                                             else if (checkbox.Name == "ReadAndExecute")
                                             {
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ReadAndExecute, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                                             }
                                             else if (checkbox.Name == "ListDirectory")
                                             {
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                                                directorySecurity.AddAccessRule(new FileSystemAccessRule(user.Sid, FileSystemRights.ListDirectory, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+
                                             }
                                             Directory.SetAccessControl(userDirectoryPath, directorySecurity);
                                         }
                                     }
+
                                 }
                                 else
                                 {
@@ -547,6 +574,38 @@ namespace UserMaking
         private void button2_Click(object sender, EventArgs e)
         {
             CreateShares();
+        }
+
+        private void Modify_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Modify.Checked)
+            {
+                ReadAndExecute.Checked = true;
+                ReadAndExecute.Enabled = false;
+
+                ListDirectory.Checked = true;
+                ListDirectory.Enabled = false;
+
+                Read.Checked = true;
+                Read.Enabled = false;
+
+                Write.Checked = true;
+                Write.Enabled = false;
+            }
+            else
+            {
+                ReadAndExecute.Checked = false;
+                ReadAndExecute.Enabled = true;
+
+                ListDirectory.Checked = false;
+                ListDirectory.Enabled = true;
+
+                Read.Checked = false;
+                Read.Enabled = true;
+
+                Write.Checked = false;
+                Write.Enabled = true;
+            }
         }
     }
 }
