@@ -56,9 +56,9 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.DeleteGroup_button = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.MakeSmbShare_Button = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
+            this.MakeDir_button = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -86,7 +86,7 @@
             this.mainToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1155, 29);
+            this.menuStrip1.Size = new System.Drawing.Size(1155, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -361,15 +361,15 @@
             this.label5.TabIndex = 12;
             this.label5.Text = "Удалить AD";
             // 
-            // button1
+            // MakeSmbShare_Button
             // 
-            this.button1.Location = new System.Drawing.Point(781, 537);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(111, 24);
-            this.button1.TabIndex = 13;
-            this.button1.Text = "Make smb";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.MakeSmbShare_Button.Location = new System.Drawing.Point(781, 537);
+            this.MakeSmbShare_Button.Name = "MakeSmbShare_Button";
+            this.MakeSmbShare_Button.Size = new System.Drawing.Size(111, 24);
+            this.MakeSmbShare_Button.TabIndex = 13;
+            this.MakeSmbShare_Button.Text = "Make smb";
+            this.MakeSmbShare_Button.UseVisualStyleBackColor = true;
+            this.MakeSmbShare_Button.Click += new System.EventHandler(this.MakeSMBShare_Button);
             // 
             // label6
             // 
@@ -380,15 +380,15 @@
             this.label6.TabIndex = 14;
             this.label6.Text = "Создать директории";
             // 
-            // button2
+            // MakeDir_button
             // 
-            this.button2.Location = new System.Drawing.Point(781, 506);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(111, 23);
-            this.button2.TabIndex = 15;
-            this.button2.Text = "Make dir";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.MakeDir_button.Location = new System.Drawing.Point(781, 506);
+            this.MakeDir_button.Name = "MakeDir_button";
+            this.MakeDir_button.Size = new System.Drawing.Size(111, 23);
+            this.MakeDir_button.TabIndex = 15;
+            this.MakeDir_button.Text = "Make dir";
+            this.MakeDir_button.UseVisualStyleBackColor = true;
+            this.MakeDir_button.Click += new System.EventHandler(this.MakeDir_Button);
             // 
             // label1
             // 
@@ -405,9 +405,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1155, 588);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.MakeDir_button);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.MakeSmbShare_Button);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.DeleteGroup_button);
             this.Controls.Add(this.panel1);
@@ -460,9 +460,9 @@
         private System.Windows.Forms.CheckBox Write;
         private System.Windows.Forms.CheckBox Read;
         private System.Windows.Forms.CheckedListBox checkedListBox1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button MakeSmbShare_Button;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button MakeDir_button;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label1;
     }

@@ -47,11 +47,13 @@ namespace UserMaking
         {
             InitializeComponent();
             userlist = new List<UserList>();
+            ProcessDataInADModule();
         }
 
         public void ProcessDataInADModule()
         {
             ADModule adModule = new ADModule(dataGridView1);
+            ShareModule shareModule = new ShareModule(dataGridView1);
         }
 
         public void LoadCSVIntoListBox()
@@ -257,8 +259,6 @@ namespace UserMaking
         //}
 
 
-        /// Кнопки
-        
         private void Add_button_Click(object sender, EventArgs e)
         {
             if(dataGridView1.DataSource == null)
@@ -273,17 +273,13 @@ namespace UserMaking
                 admodule.CreateUser();
                 MessageBox.Show("Группы и пользователи успешно созданы!");
             }
-        }
+        } // Вывод групп в листбокс
         private void Clear_button_Click(object sender, EventArgs e)
         {
             dataGridView1.DataSource = null;
-        }
+        } // Отчистка табла
 
-        private void Add_PersonRule_button_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void Add_GroupRule_button_Click(object sender, EventArgs e)
+        private void Add_GroupRule_button_Click(object sender, EventArgs e) // Выдача разрешений пользователям групп
         {
             CheckBox[] checkboxes = { FullControl, Modify, ReadAndExecute, ListDirectory, Read, Write };
 
@@ -305,9 +301,7 @@ namespace UserMaking
             {
                 return false;
             }
-        }
-
-        
+        }   // Проверка чекбоксов
         public void GrantWriteAccessToUserFolders(CheckBox[] checkboxes)
         {
             string baseDirectory = "C:\\public";
@@ -391,57 +385,22 @@ namespace UserMaking
             }
 
             MessageBox.Show("Права успешно установлены для всех пользовательских папок.");
-        }
+        }   // Метод выдачи разрешений
 
 
-
-
-
-        /// Блок удаления директорий
-        public void DeleteAllGroups()
+        private void DeleteGroup_button_Click(object sender, EventArgs e) // Удаление директорий в Active directory
         {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+            DialogResult dialogResult = MessageBox.Show("Вы уверенны что хотите удалить все группы?", "Удаление", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+            if (dialogResult == DialogResult.Yes)
             {
-                DeleteChildEntries(root);
+                DeletingAD delAD = new DeletingAD();
+                delAD.DeleteAllGroups();
+                MessageBox.Show("Группы успешно дезинтегрированны!");
             }
-        }
-
-        private void DeleteChildEntries(DirectoryEntry parent)
-        {
-            foreach (DirectoryEntry child in parent.Children)
+            else
             {
-                DeleteChildEntries(child);
-
-                try
-                {
-                    if (DirectoryEntry.Exists(child.Path))
-                    {
-                        child.DeleteTree();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Ошибка при удалении объекта: " + ex.Message);
-                }
+                return;
             }
-
-            try
-            {
-                if (DirectoryEntry.Exists(parent.Path))
-                {
-                    parent.DeleteTree();
-                    parent.CommitChanges();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ошибка при удалении объекта: " + ex.Message);
-            }
-        }
-
-        private void DeleteGroup_button_Click(object sender, EventArgs e)
-        {
-            DeleteAllGroups();
         }
 
         public void CreateShares()
@@ -481,99 +440,23 @@ namespace UserMaking
                         Console.WriteLine($"Директория {userDirectoryPath} уже существует.");
                         // Вывод предупреждения или выполнение других действий
                     }
-
-                    //Directory.CreateDirectory(groupDirectoryPath);
-                    // Directory.CreateDirectory(userDirectoryPath);
                 }
                 MessageBox.Show("well doneово");
             }
-        }
+        } // Метод создания директорий
 
-        public void ShareFolder(string folderPath, string shareName)
+        private void MakeDir_Button(object sender, EventArgs e) // Слздание директорий
         {
-            // Создайте объект ManagementClass, представляющий класс Win32_Share
-            ManagementClass managementClass = new ManagementClass("Win32_Share");
-
-            // Получите все уже существующие общие ресурсы
-            ManagementObjectCollection shares = managementClass.GetInstances();
-
-            foreach (ManagementObject share in shares)
-            {
-                if (string.Equals((string)share["Name"], shareName, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Общий ресурс с таким именем уже существует, попробуем удалить его
-                    share.Delete();
-                    break;
-                }
-            }
-
-            // Создайте входной параметры для метода Create
-            ManagementBaseObject inParams = managementClass.GetMethodParameters("Create");
-
-            // Задайте входные параметры
-            inParams["Path"] = folderPath;
-            inParams["Name"] = shareName;
-            inParams["Type"] = 0x0; // Disk Drive
-
-            // Вызовите метод Create и получите возвращаемый результат
-            ManagementBaseObject outParams = managementClass.InvokeMethod("Create", inParams, null);
-
-            //if ((uint)(outParams.Properties["ReturnValue"].Value) != 0)
-            //{
-            //    throw new Exception("Ошибка при попытке поделиться папкой.");
-            //}
-        }
-
-        public void GrantFolderAccess()
-        {
-            string baseDirectory = "C:\\public";
-
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                
-                string groupName = row.Cells["Группа"].Value.ToString();
-                string login = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
-
-                string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
-                string userDirectoryPath = Path.Combine(groupDirectoryPath, login);
-
-                if (Directory.Exists(userDirectoryPath))
-                {
-                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
-                    {
-                        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
-                        if (user != null)
-                        {
-                            DirectorySecurity directorySecurity = Directory.GetAccessControl(userDirectoryPath);
-                            SecurityIdentifier sid = user.Sid; // Получаем Sid пользователя
-                            NTAccount ntAccount = (NTAccount)sid.Translate(typeof(NTAccount)); // Получаем NTAccount из Sid
-
-                            directorySecurity.AddAccessRule(new FileSystemAccessRule(ntAccount, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                            Directory.SetAccessControl(userDirectoryPath, directorySecurity);
-                            ShareFolder(userDirectoryPath, login);
-                            // MessageBox.Show($"Пользователю {login} предоставлен доступ к папке {userDirectoryPath}");
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Пользователь {login} не найден в Active Directory.");
-                        }
-                    }
-                }
-                else
-                {
-                    MessageBox.Show($"Директория {userDirectoryPath} не найдена.");
-                }
-            }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {    
-            GrantFolderAccess();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
+            // GrantFolderAccess();
             CreateShares();
+
+        }
+
+        private void MakeSMBShare_Button(object sender, EventArgs e)
+        {
+            ShareModule shareModule = new ShareModule(dataGridView1);
+            shareModule.dataGridView1 = dataGridView1;
+            shareModule.GrantFolderAccess();
         }
 
         private void Modify_CheckedChanged(object sender, EventArgs e)
@@ -606,6 +489,6 @@ namespace UserMaking
                 Write.Checked = false;
                 Write.Enabled = true;
             }
-        }
+        } // Логика отображения чекбоксов
     }
 }

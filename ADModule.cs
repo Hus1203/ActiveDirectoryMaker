@@ -11,10 +11,10 @@ using System.Xml.Linq;
 
 namespace UserMaking
 {
-    public partial class ADModule : Form1
+    public partial class ADModule
     {
-        public static DataGridViewRow view { get; set; }
-        List<UserList> userlist;
+        //public static DataGridViewRow view { get; set; }
+       // List<UserList> userlist;
 
 
         public string oug;
@@ -62,7 +62,7 @@ namespace UserMaking
 
         public void CreateGroups()
         {
-            //var groups = new HashSet<string>();
+            var groups = new HashSet<string>();
 
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
@@ -101,7 +101,6 @@ namespace UserMaking
                     }
                 }
             }
-            //MessageBox.Show("Такой пользователь существует");
             return false;
         }
         public void CreateUserOu(string login, string gr)
