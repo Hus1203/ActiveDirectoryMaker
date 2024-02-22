@@ -32,7 +32,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.mainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Add_button = new System.Windows.Forms.Button();
             this.Clear_button = new System.Windows.Forms.Button();
             this.Add_GroupRule_button = new System.Windows.Forms.Button();
@@ -60,6 +59,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.MakeDir_button = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.Info_item = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -81,37 +81,33 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(19, 19);
+            this.menuStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(19, 25);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mainToolStripMenuItem});
+            this.mainToolStripMenuItem,
+            this.Info_item});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1155, 28);
+            this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            this.menuStrip1.Size = new System.Drawing.Size(1152, 29);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // mainToolStripMenuItem
             // 
+            this.mainToolStripMenuItem.BackColor = System.Drawing.SystemColors.HotTrack;
             this.mainToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.loadToolStripMenuItem,
-            this.saveToolStripMenuItem});
+            this.loadToolStripMenuItem});
             this.mainToolStripMenuItem.Name = "mainToolStripMenuItem";
-            this.mainToolStripMenuItem.Size = new System.Drawing.Size(56, 24);
+            this.mainToolStripMenuItem.Size = new System.Drawing.Size(56, 25);
             this.mainToolStripMenuItem.Text = "Main";
             // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(124, 26);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(217, 26);
             this.loadToolStripMenuItem.Text = "Load";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(124, 26);
-            this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // Add_button
             // 
@@ -307,6 +303,7 @@
             this.ReadAndExecute.Tag = "";
             this.ReadAndExecute.Text = "Чтение и выполнение";
             this.ReadAndExecute.UseVisualStyleBackColor = true;
+            this.ReadAndExecute.CheckedChanged += new System.EventHandler(this.ReadAndExecute_CheckedChanged);
             // 
             // Modify
             // 
@@ -331,6 +328,7 @@
             this.FullControl.Tag = "FullControl";
             this.FullControl.Text = "Полный доступ";
             this.FullControl.UseVisualStyleBackColor = true;
+            this.FullControl.CheckedChanged += new System.EventHandler(this.FullControl_CheckedChanged);
             // 
             // panel2
             // 
@@ -399,11 +397,16 @@
             this.label1.TabIndex = 16;
             this.label1.Text = "Расширение папки";
             // 
+            // Info_item
+            // 
+
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1155, 588);
+            this.ClientSize = new System.Drawing.Size(1152, 591);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.MakeDir_button);
             this.Controls.Add(this.label6);
@@ -416,7 +419,7 @@
             this.Controls.Add(this.Clear_button);
             this.Controls.Add(this.Add_button);
             this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Form1";
@@ -436,7 +439,6 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem mainToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.Button Add_button;
         private System.Windows.Forms.Button Clear_button;
         private System.Windows.Forms.Button Add_GroupRule_button;
@@ -465,6 +467,7 @@
         private System.Windows.Forms.Button MakeDir_button;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem Info_item;
     }
 }
 

@@ -23,12 +23,13 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Drawing.Drawing2D;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using PowerShellToolsPro.Packager;
+using System.Diagnostics;
 
 namespace UserMaking
 {
     public partial class Form1 : Form
     {
-
+        // Предусловие. В коде по прежнему присутсвует хардкодинг.
         List<UserList> userlist;
 
         public string oug;
@@ -50,12 +51,13 @@ namespace UserMaking
             ProcessDataInADModule();
         }
 
+
         public void ProcessDataInADModule()
         {
             ADModule adModule = new ADModule(dataGridView1);
             ShareModule shareModule = new ShareModule(dataGridView1);
         }
-
+   
         public void LoadCSVIntoListBox()
         {
             if (dataGridView1.DataSource != null)
@@ -74,191 +76,15 @@ namespace UserMaking
                     }
                 }
             }
-        }
+        } // Загрузка из файла в листбокс
 
-        private void loadToolStripMenuItem_Click(object sender, EventArgs e) // Загрузка файла
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ReadCSV readCSV = new ReadCSV();
             readCSV.LoadCSV();
             LoadCSVIntoListBox();
-        }
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-            ReadCSV readCSV = new ReadCSV();
-            readCSV.SaveCSV();
-            //if (dataGridView1.DataSource != null)
-            //{
-            //    using (var writer = new StreamWriter("D:\\Users.csv", false, Encoding.GetEncoding("windows-1251")))
-            //    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            //    {
-            //        csv.WriteRecords(userlist);
-            //        MessageBox.Show("Сохраненно");
-            //    }
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Вы пытаетесь сохарнить пустой файл!");
-            //    return;
-            //}
-
-        } // Сохранение файла
-
-
-        //public bool OuExists(string ouName)
-        //{
-        //    using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-        //    {
-        //        foreach (DirectoryEntry child in root.Children)
-        //        {
-        //            if (child.Name == "OU=" + ouName)
-        //            {
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    return false;
-        //}
-        //public void CreateOu(string oug)
-        //{
-        //    using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-        //    {
-        //        using (DirectoryEntry newOu = root.Children.Add("OU=" + oug, "OrganizationalUnit"))
-        //        {
-        //            newOu.CommitChanges();
-        //        }
-        //    }
-        //}
-
-        //public void CreateGroups()
-        //{
-        //    var groups = new HashSet<string>();
-
-        //    foreach (DataGridViewRow row in dataGridView1.Rows)
-        //    {
-        //        string groupName = row.Cells["Группа"].Value.ToString();
-        //        gr = $"SG_{groupName}";
-
-        //        //Создаем OU для группы, если он еще не существует
-        //        if (!OuExists(gr))
-        //        {
-        //            CreateOu(gr);
-
-        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
-        //            {
-
-        //                GroupPrincipal newGroup = new GroupPrincipal(context)
-        //                {
-        //                    Name = gr,
-        //                    Description = "Описание группы",
-        //                };
-        //                newGroup.Save();
-
-        //            }
-        //        }
-        //    }
-        //}
-
-        //public bool UserOuExists(string login, string gr)
-        //{
-        //    using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
-        //    {
-        //        foreach (DirectoryEntry child in group.Children)
-        //        {
-        //            if (child.Name == "OU=" + login)
-        //            {
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    //MessageBox.Show("Такой пользователь существует");
-        //    return false;
-        //}
-        //public void CreateUserOu(string login, string gr)
-        //{
-        //    using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
-        //    {
-        //        using (DirectoryEntry parentOu = root.Children.Find("OU=" + gr))
-        //        {
-        //            using (DirectoryEntry newOu = parentOu.Children.Add("OU=" + login, "OrganizationalUnit"))
-        //            {
-        //                newOu.CommitChanges();
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private bool UserExists(string login)
-        //{
-        //    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com"))
-        //    {
-        //        UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
-        //        return user != null;
-        //    }
-        //}
-        //public void CreateUser()
-        //{
-
-        //    foreach (DataGridViewRow row in dataGridView1.Rows)
-        //    {
-                
-        //        string groupName = row.Cells["Группа"].Value.ToString();
-
-        //        oug = row.Cells["Группа"].Value.ToString();
-        //        //group = $"OU={oug}"; //<-- сама группа
-        //        sn = row.Cells["Фамилия"].Value.ToString();
-        //        gname = $"{row.Cells["Имя"].Value} {row.Cells["Отчество"].Value}"; // Name + Patronymic
-        //        init = row.Cells["Инициалы"].Value.ToString();
-        //        fullName = $"{sn} {gname}";
-        //        gr = $"SG_{oug}"; // <-- по идее это паттерн названия группы 
-        //        login = $"{sn}{init}"; // WIN-2000 Login (Surname + Initials)
-        //        normLogin = $"{login}{domain}"; // Standard login
-
-        //        if (!UserExists(login))
-        //        {
-        //            if (!UserOuExists(login, gr))
-        //            {
-        //                CreateUserOu(login, gr);
-        //            }
-
-        //            using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + login + ",OU=" + gr + ",DC=mydomain,DC=com"))
-        //            {
-        //                UserPrincipal newUser = new UserPrincipal(context)
-        //                {
-        //                    Name = fullName,
-        //                    SamAccountName = login,
-        //                    Surname = sn,
-        //                    Enabled = true,
-        //                    UserPrincipalName = normLogin,
-        //                    AccountExpirationDate = null,
-        //                    GivenName = gname,
-        //                    DisplayName = fullName,
-        //                };
-
-        //                newUser.SetPassword("aaaAAA111");
-        //                newUser.Save();
-
-
-        //                using (PrincipalContext groupContext = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
-        //                {
-        //                    GroupPrincipal group = GroupPrincipal.FindByIdentity(groupContext, IdentityType.Name, gr);
-        //                    if (group != null)
-        //                    {
-        //                        group.Members.Add(newUser);
-        //                        group.Save();
-        //                    }
-        //                    else
-        //                    {
-        //                        MessageBox.Show("Группа не найдена!");
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    MessageBox.Show("пользователи созданы!");
-        //}
-
-
+        } // Загрузка файла
+        
         private void Add_button_Click(object sender, EventArgs e)
         {
             if(dataGridView1.DataSource == null)
@@ -285,7 +111,6 @@ namespace UserMaking
 
             GrantWriteAccessToUserFolders(checkboxes);
         }
-
         public Boolean CheckBoxe(CheckBox[] checkboxes)
         {
             var selectedGroupsCount = checkedListBox1.CheckedItems.Count;
@@ -387,8 +212,7 @@ namespace UserMaking
             MessageBox.Show("Права успешно установлены для всех пользовательских папок.");
         }   // Метод выдачи разрешений
 
-
-        private void DeleteGroup_button_Click(object sender, EventArgs e) // Удаление директорий в Active directory
+        private void DeleteGroup_button_Click(object sender, EventArgs e) 
         {
             DialogResult dialogResult = MessageBox.Show("Вы уверенны что хотите удалить все группы?", "Удаление", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
             if (dialogResult == DialogResult.Yes)
@@ -401,7 +225,7 @@ namespace UserMaking
             {
                 return;
             }
-        }
+        } // Удаление директорий в Active directory
 
         public void CreateShares()
         {
@@ -445,20 +269,20 @@ namespace UserMaking
             }
         } // Метод создания директорий
 
-        private void MakeDir_Button(object sender, EventArgs e) // Слздание директорий
+        private void MakeDir_Button(object sender, EventArgs e) 
         {
-            // GrantFolderAccess();
             CreateShares();
-
-        }
+        } // Слздание директорий
 
         private void MakeSMBShare_Button(object sender, EventArgs e)
         {
             ShareModule shareModule = new ShareModule(dataGridView1);
             shareModule.dataGridView1 = dataGridView1;
             shareModule.GrantFolderAccess();
-        }
+        } // Создание Шары
 
+
+        /// Логика отображения чекбоксов
         private void Modify_CheckedChanged(object sender, EventArgs e)
         {
             if (Modify.Checked)
@@ -489,6 +313,68 @@ namespace UserMaking
                 Write.Checked = false;
                 Write.Enabled = true;
             }
-        } // Логика отображения чекбоксов
+        } 
+
+        private void ReadAndExecute_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ReadAndExecute.Checked)
+            {
+                ListDirectory.Checked = true;
+                ListDirectory.Enabled = false;
+
+                Read.Checked = true;
+                Read.Enabled = false;
+
+            }
+            else
+            {
+                ListDirectory.Checked = false;
+                ListDirectory.Enabled = true;
+
+                Read.Checked = false;
+                Read.Enabled = true;
+
+            }
+
+        }
+
+        private void FullControl_CheckedChanged(object sender, EventArgs e)
+        {
+            if (FullControl.Checked)
+            {
+                Modify.Checked = true;
+                Modify.Enabled = false;
+
+                ReadAndExecute.Checked = true;
+                ReadAndExecute.Enabled = false;
+
+                ListDirectory.Checked = true;
+                ListDirectory.Enabled = false;
+
+                Read.Checked = true;
+                Read.Enabled = false;
+
+                Write.Checked = true;
+                Write.Enabled = false;
+            }
+            else
+            {
+                Modify.Checked = false; 
+                Modify.Enabled = true;
+
+                ReadAndExecute.Checked = false;
+                ReadAndExecute.Enabled = true;
+
+                ListDirectory.Checked = false;
+                ListDirectory.Enabled = true;
+
+                Read.Checked = false;
+                Read.Enabled = true;
+
+                Write.Checked = false;
+                Write.Enabled = true;
+            }
+
+        }
     }
 }
