@@ -9,9 +9,11 @@ namespace UserMaking
 {
     public partial class DeletingAD
     {
+        string dc1 = "mydomain";
+        string dc2 = "com";
         public void DeleteAllGroups()
         {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+            using (DirectoryEntry root = new DirectoryEntry($"LDAP://dc={dc1},dc={dc2}"))
             {
                 DeleteChildEntries(root);
             }

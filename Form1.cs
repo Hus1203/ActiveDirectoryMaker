@@ -34,7 +34,6 @@ namespace UserMaking
 
         public string oug;
         string group;
-        string domain = "MYDOMAIN";
         string sn;
         string gname;
         string init;
@@ -43,7 +42,9 @@ namespace UserMaking
         string login;
         string normLogin;
 
-        
+        Conf conf = new Conf();
+        string baseDirectory = Conf.baseDirectory;
+
         public Form1()
         {
             InitializeComponent();
@@ -55,7 +56,8 @@ namespace UserMaking
         {
             ADModule adModule = new ADModule(dataGridView1);
             ShareModule shareModule = new ShareModule(dataGridView1);
-        }
+
+        } 
    
         public void LoadCSVIntoListBox()
         {
@@ -128,9 +130,7 @@ namespace UserMaking
         }   // Проверка чекбоксов
         public void GrantWriteAccessToUserFolders(CheckBox[] checkboxes)
         {
-            string baseDirectory = "C:\\public";
-
-            if(CheckBoxe(checkboxes)) // Проверка 
+            if (CheckBoxe(checkboxes)) // Проверка 
             {
                 return;
             }
@@ -227,8 +227,7 @@ namespace UserMaking
         } // Удаление директорий в Active directory
 
         public void CreateShares()
-        {
-            string baseDirectory = "C:\\\\public";
+        {     
             if (dataGridView1 == null)
             {
                 MessageBox.Show("Сначала загрузите данные");
@@ -271,7 +270,7 @@ namespace UserMaking
         private void MakeDir_Button(object sender, EventArgs e) 
         {
             CreateShares();
-        } // Слздание директорий
+        } // Создание директорий
 
         private void MakeSMBShare_Button(object sender, EventArgs e)
         {
@@ -312,7 +311,7 @@ namespace UserMaking
                 Write.Checked = false;
                 Write.Enabled = true;
             }
-        } 
+        }  
 
         private void ReadAndExecute_CheckedChanged(object sender, EventArgs e)
         {

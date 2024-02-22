@@ -11,15 +11,19 @@ using System.Xml.Linq;
 
 namespace UserMaking
 {
-    public partial class ADModule
+    public partial class ADModule : Conf
     {
         //public static DataGridViewRow view { get; set; }
-       // List<UserList> userlist;
+        // List<UserList> userlist;
 
+       // string dc1 = "mydomain";
+       // string dc2 = "com";
+
+       // Conf conf = new Conf();
 
         public string oug;
         string group;
-        string domain = "MYDOMAIN";
+       // string domain = "mydomain.com";
         string sn;
         string gname;
         string init;
@@ -37,7 +41,7 @@ namespace UserMaking
 
         public bool OuExists(string ouName)
         {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+            using (DirectoryEntry root = new DirectoryEntry($"LDAP://dc={dc1},dc={dc2}"))
             {
                 foreach (DirectoryEntry child in root.Children)
                 {
@@ -74,7 +78,7 @@ namespace UserMaking
                 {
                     CreateOu(gr);
 
-                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, domain, "OU=" + gr + ",DC=" + dc1 + ",DC=" + dc2))
                     {
 
                         GroupPrincipal newGroup = new GroupPrincipal(context)
@@ -91,7 +95,7 @@ namespace UserMaking
 
         public bool UserOuExists(string login, string gr)
         {
-            using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=mydomain,dc=com"))
+            using (DirectoryEntry group = new DirectoryEntry("LDAP://mydomain.com/OU=" + gr + ",dc=" + dc1 + ",dc=" + dc2 ))
             {
                 foreach (DirectoryEntry child in group.Children)
                 {
@@ -105,7 +109,7 @@ namespace UserMaking
         }
         public void CreateUserOu(string login, string gr)
         {
-            using (DirectoryEntry root = new DirectoryEntry("LDAP://dc=mydomain,dc=com"))
+            using (DirectoryEntry root = new DirectoryEntry($"LDAP://dc={dc1},dc={dc2}"))
             {
                 using (DirectoryEntry parentOu = root.Children.Find("OU=" + gr))
                 {
@@ -119,7 +123,7 @@ namespace UserMaking
 
         private bool UserExists(string login)
         {
-            using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com"))
+            using (PrincipalContext context = new PrincipalContext(ContextType.Domain, domain))
             {
                 UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, login);
                 return user != null;
@@ -150,7 +154,7 @@ namespace UserMaking
                         CreateUserOu(login, gr);
                     }
 
-                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + login + ",OU=" + gr + ",DC=mydomain,DC=com"))
+                    using (PrincipalContext context = new PrincipalContext(ContextType.Domain, domain, "OU=" + login + ",OU=" + gr + ", DC = " + dc1 + ", DC = " + dc2))
                     {
                         UserPrincipal newUser = new UserPrincipal(context)
                         {
@@ -168,7 +172,7 @@ namespace UserMaking
                         newUser.Save();
 
 
-                        using (PrincipalContext groupContext = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ",DC=mydomain,DC=com"))
+                        using (PrincipalContext groupContext = new PrincipalContext(ContextType.Domain, "mydomain.com", "OU=" + gr + ", DC = " + dc1 + ", DC = " + dc2))
                         {
                             GroupPrincipal group = GroupPrincipal.FindByIdentity(groupContext, IdentityType.Name, gr);
                             if (group != null)

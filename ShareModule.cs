@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace UserMaking
 {
-    public partial class ShareModule
+    public partial class ShareModule : Conf
     {
         public DataGridView dataGridView1;
         public ShareModule(DataGridView dataGridView)
@@ -49,15 +49,9 @@ namespace UserMaking
             // Вызовите метод Create и получите возвращаемый результат
             ManagementBaseObject outParams = managementClass.InvokeMethod("Create", inParams, null);
 
-            //if ((uint)(outParams.Properties["ReturnValue"].Value) != 0)
-            //{
-            //    throw new Exception("Ошибка при попытке поделиться папкой.");
-            //}
         } // Метод расшаривания папок
         public void GrantFolderAccess()
         {
-            string baseDirectory = "C:\\public";
-
             if(dataGridView1.DataSource == null)
             {
                 MessageBox.Show("Откройте файл с пользователями и повторите попытку");
@@ -69,7 +63,7 @@ namespace UserMaking
                 string groupName = row.Cells["Группа"].Value.ToString();
                 string login = $"{row.Cells["Фамилия"].Value.ToString()}{row.Cells["Инициалы"].Value.ToString()}";
 
-                string groupDirectoryPath = Path.Combine(baseDirectory, groupName);
+                string groupDirectoryPath = Path.Combine(baseDirectoryShare, groupName);
                 string userDirectoryPath = Path.Combine(groupDirectoryPath, login);
 
                 if (Directory.Exists(userDirectoryPath))
