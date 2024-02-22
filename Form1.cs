@@ -51,7 +51,6 @@ namespace UserMaking
             ProcessDataInADModule();
         }
 
-
         public void ProcessDataInADModule()
         {
             ADModule adModule = new ADModule(dataGridView1);
