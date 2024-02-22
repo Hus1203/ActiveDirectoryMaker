@@ -41,7 +41,6 @@ namespace UserMaking
         string gr;
         string login;
         string normLogin;
-
         
         public Form1()
         {
